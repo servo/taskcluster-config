@@ -6,6 +6,19 @@ if __name__ == "__main__":
 import os
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
 
+
 from tcadmin.appconfig import AppConfig
 
+
 appconfig = AppConfig()
+
+
+@appconfig.generators.register
+async def define_resources(resources):
+    # https://github.com/mozilla/community-tc-config/pull/34/files#diff-0e8019c85dcac0b955401c427a3c4921R86-R96
+    resources.manage("Client=project/servo/.*")
+    resources.manage("WorkerPool=proj-servo/(?!ci$).*")
+    resources.manage("Hook=project-servo/.*")
+    resources.manage("Role=hook-id:project-servo/.*")
+    resources.manage("Role=repo:github.com/servo/.*")
+    resources.manage("Role=project:servo:.*")
