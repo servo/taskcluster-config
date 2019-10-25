@@ -8,6 +8,7 @@ os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.moz
 
 
 from tcadmin.appconfig import AppConfig
+from tcadmin.resources import Role
 
 
 appconfig = AppConfig()
@@ -22,3 +23,11 @@ async def define_resources(resources):
     resources.manage("Role=hook-id:project-servo/.*")
     resources.manage("Role=repo:github.com/servo/.*")
     resources.manage("Role=project:servo:.*")
+
+    resources.add(Role(
+        roleId="repo:github.com/servo/servo:branch:*",
+        description="Scopes granted for push events to any branch of servo/servo",
+        scopes=(
+            "assume:project:servo:decision-task/trusted",
+        ),
+    ))
