@@ -60,7 +60,7 @@ Once the configuration diff looks good, submit a pull request with your changes.
 This requires creatin a new "client" with administrative access:
 
 * Navigate to https://community-tc.services.mozilla.com/profile
-* If not already signed in, click the "Sign in" button on the top right, than "Sign in with GitHub"
+* If not already signed in, click the "Sign in" button on the top right, then "Sign in with GitHub"
 * Take note of your browsing session’s client ID. It should look like `github/291359|SimonSapin`
 * Check that `assume:project-admin:servo` is listed under "Scopes"
 * Navigate to https://community-tc.services.mozilla.com/auth/clients/create
