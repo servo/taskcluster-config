@@ -72,7 +72,7 @@ This requires creatin a new "client" with administrative access:
 * In your terminal, set environment variables with the chosen ID
   and the token that shows up (only once!) after creating the client.
 
-```
+```sh
 export TASKCLUSTER_CLIENT_ID="github/291359|SimonSapin/cli"
 export TASKCLUSTER_ACCESS_TOKEN="xxxxxx-yyyyyy-zzzzzz"
 ```
