@@ -24,7 +24,7 @@ examining this repository to determine the desired state,
 and then "applying" the necessary changes to get from the former to the latter.
 
 
-## Quick Start
+## Making changes
 
 If you would like to propose a change to Servo’s configuration of the Community-TC deployment,
 you are in the right spot.
@@ -51,3 +51,40 @@ you can examine the results by running `./tc-admin.py diff` again.
 If you are adding or removing a number of resources,
 you can use `--ids-only` to show only the names of the added or removed resources.
 See `./tc-admin.py --help` for more useful command-line tricks.
+
+Once the configuration diff looks good, submit a pull request with your changes.
+
+
+## Deploying changes
+
+This requires creatin a new "client" with administrative access:
+
+* Navigate to https://community-tc.services.mozilla.com/profile
+* If not already signed in, click the "Sign in" button on the top right, than "Sign in with GitHub"
+* Take note of your browsing session’s client ID. It should look like `github/291359|SimonSapin`
+* Check that `assume:project-admin:servo` is listed under "Scopes"
+* Navigate to https://community-tc.services.mozilla.com/auth/clients/create
+* Pick an ID for the new client that starts with yours, followed by `/` and some identifier.
+  For example, `github/291359|SimonSapin/cli`.
+* Pick an expiration date that seems appropriate.
+* Copy-paste `assume:project-admin:servo` into the scopes given to this new client.
+* Create the client with the "Save" icon at the bottom right.
+* In your terminal, set environment variables with the chosen ID
+  and the token that shows up (only once!) after creating the client.
+
+```
+export TASKCLUSTER_CLIENT_ID="github/291359|SimonSapin/cli"
+export TASKCLUSTER_ACCESS_TOKEN="xxxxxx-yyyyyy-zzzzzz"
+```
+
+Check again that the diff looks good:
+
+```
+./tc-admin.py diff
+```
+
+Then deploy:
+
+```
+./tc-admin.py apply
+```
