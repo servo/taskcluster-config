@@ -7,11 +7,20 @@ import os
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
 
 
+import os
+import yaml
 from tcadmin.appconfig import AppConfig
 from tcadmin.resources import Role
 
 
 appconfig = AppConfig()
+
+here = os.path.dirname(__file__)
+config = os.path.join(here, "config")
+
+
+def parse_yaml(filename):
+    return yaml.load(open(os.path.join(config, filename)))
 
 
 @appconfig.generators.register
@@ -24,10 +33,5 @@ async def define_resources(resources):
     resources.manage("Role=repo:github.com/servo/.*")
     resources.manage("Role=project:servo:.*")
 
-    resources.add(Role(
-        roleId="repo:github.com/servo/servo:branch:*",
-        description="Scopes granted for push events to any branch of servo/servo",
-        scopes=(
-            "assume:project:servo:decision-task/trusted",
-        ),
-    ))
+    for role in parse_yaml("roles.yml"):
+        resources.add(Role(**role))

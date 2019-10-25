@@ -1,0 +1,4 @@
+- roleId: repo:github.com/servo/servo:branch:*
+  description: Scopes granted for push events to any branch of servo/servo
+  scopes:
+    - assume:project:servo:decision-task/trusted
