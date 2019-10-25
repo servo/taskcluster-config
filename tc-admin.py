@@ -25,7 +25,7 @@ def parse_yaml(filename):
 
 @appconfig.generators.register
 async def define_resources(resources):
-    # https://github.com/mozilla/community-tc-config/pull/34/files#diff-0e8019c85dcac0b955401c427a3c4921R86-R96
+    # https://github.com/mozilla/community-tc-config/blob/57615932e/generate/projects.py#L86-L96
     resources.manage("Client=project/servo/.*")
     resources.manage("WorkerPool=proj-servo/(?!ci$).*")
     resources.manage("Hook=project-servo/.*")
