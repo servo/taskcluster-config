@@ -7,10 +7,9 @@ import os
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
 
 
-import os
-import yaml
 from tcadmin.appconfig import AppConfig
 from tcadmin.resources import Role
+import yaml
 
 
 appconfig = AppConfig()
@@ -20,7 +19,7 @@ config = os.path.join(here, "config")
 
 
 def parse_yaml(filename):
-    return yaml.load(open(os.path.join(config, filename)))
+    return yaml.safe_load(open(os.path.join(config, filename)))
 
 
 @appconfig.generators.register
