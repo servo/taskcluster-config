@@ -88,6 +88,8 @@ def aws(min_capacity, max_capacity, regions, capacity_per_instance_type, securit
                         "ImageId": ami_id,
                         "InstanceType": instance_type,
                         "InstanceMarketOptions": {"MarketType": "spot"},
+                        "Placement": {"AvailabilityZone": az},
+                        "SubnetId": subnet_id,
                         "SecurityGroupIds": [
                             AWS_CONFIG["region " + region]["security groups"][security_group]
                             for security_group in security_groups
@@ -95,6 +97,7 @@ def aws(min_capacity, max_capacity, regions, capacity_per_instance_type, securit
                     }
                 }
                 for region, ami_id in regions.items()
+                for az, subnet_id in AWS_CONFIG["region " + region]["subnets by AZ"].items()
                 for instance_type, capacity_per_instance in capacity_per_instance_type.items()
             ],
         }
