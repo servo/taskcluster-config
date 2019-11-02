@@ -29,7 +29,7 @@ async def define_resources(resources):
     resources.manage("WorkerPool=proj-servo/(?!ci$).*")
     resources.manage("Hook=project-servo/.*")
     resources.manage("Role=hook-id:project-servo/.*")
-    resources.manage("Role=repo:github.com/servo/.*")
+    resources.manage("Role=repo:github.com/servo/servo:.*")
     resources.manage("Role=project:servo:.*")
 
     for role in parse_yaml("roles.yml"):
