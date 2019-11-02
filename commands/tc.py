@@ -1,16 +1,9 @@
-#!/usr/bin/env python3
-
-if __name__ == "__main__":
-    import bootstrap
-
-import os
-os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
-
-
 from tcadmin.appconfig import AppConfig
+from tcadmin.main import main
 from tcadmin.resources import Role, WorkerPool
 import hashlib
 import json
+import os
 import re
 import yaml
 
@@ -65,7 +58,7 @@ async def register_hooks(resources):
 
 
 def parse_yaml(filename):
-    return yaml.safe_load(open(os.path.join(os.path.dirname(__file__), "config", filename)))
+    return yaml.safe_load(open(os.path.join(os.path.dirname(__file__), "..", "config", filename)))
 
 
 # Based on https://github.com/mozilla/community-tc-config/blob/master/generate/workers.py
@@ -103,6 +96,7 @@ def aws(min_capacity, max_capacity, regions, capacity_per_instance_type, securit
         }
     }
 
+
 def aws_windows(**yaml_input):
     tc_admin_params = aws(security_groups=["no-inbound", "rdp"], **yaml_input)
 
@@ -126,3 +120,7 @@ def aws_windows(**yaml_input):
         launch_config["workerConfig"] = {"genericWorker": {"config": generic_worker_config}}
 
     return tc_admin_params
+
+
+if __name__ == "__main__":
+    main(appconfig)

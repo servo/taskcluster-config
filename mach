@@ -1,11 +1,30 @@
+#!/usr/bin/env python3
+
 import os
 import shutil
 import subprocess
 import sys
 
+os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
 
 here = os.path.dirname(__file__)
 venv = os.path.join(here, "venv")
+commands = os.path.join(here, "commands")
+
+if len(sys.argv) > 1:
+    command = sys.argv[1]
+else:
+    command = "help"
+
+command_file = os.path.join(commands, command + ".py")
+if not os.path.isfile(command_file):
+    print("Usage: %s <command> [args]" % sys.argv[0])
+    print()
+    print("Commands:")
+    for command in os.listdir(commands):
+        if command.endswith(".py"):
+            print("  " + command[:-len(".py")])
+    sys.exit(1)
 
 # Create a virtualenv if it doesn’t exist
 if not os.path.isdir(venv):
@@ -30,6 +49,6 @@ if installed != requirements:
         sys.exit(exit_code)
     shutil.copyfile(requirements_file, installed_file)
 
-# Execute the tc-admin app in this directory
-tc_admin = os.path.join(venv, "bin", "tc-admin")
-sys.exit(subprocess.call([tc_admin] + sys.argv[1:], cwd=here))
+
+py = os.path.join(venv, "bin", "python")
+sys.exit(subprocess.call([py, command_file] + sys.argv[2:], cwd=here))

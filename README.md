@@ -35,22 +35,18 @@ or consult with the Servo team or the Taskcluster team if you need assistance.
 Ensure you have `python3` and `virtulenv` executables in your `$PATH` and run:
 
 ```
-./tc-admin.py diff
+./mach tc diff
 ```
-
-(Alternatively,
-install the tc-admin [`tc-admin`](https://github.com/taskcluster/tc-admin) app some other way
-and use it from this directory.)
 
 This will show you the current difference between what's defined in your local repository
 and the runtime configuration of the deployment.
 Most of the time, there should be no difference.
 
 After making a change in the configuration,
-you can examine the results by running `./tc-admin.py diff` again.
+you can examine the results by running `./mach tc diff` again.
 If you are adding or removing a number of resources,
 you can use `--ids-only` to show only the names of the added or removed resources.
-See `./tc-admin.py --help` for more useful command-line tricks.
+See `./mach tc --help` for more useful command-line tricks.
 
 Once the configuration diff looks good, submit a pull request with your changes.
 
@@ -80,11 +76,11 @@ export TASKCLUSTER_ACCESS_TOKEN="xxxxxx-yyyyyy-zzzzzz"
 Check again that the diff looks good:
 
 ```
-./tc-admin.py diff
+./mach tc diff
 ```
 
 Then deploy:
 
 ```
-./tc-admin.py apply
+./mach tc apply
 ```
