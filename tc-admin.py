@@ -4,16 +4,15 @@ if __name__ == "__main__":
     import bootstrap
 
 import os
-import sys
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
-sys.path.insert(0, os.path.dirname(__file__))
 
 
 from tcadmin.appconfig import AppConfig
 from tcadmin.resources import Role, WorkerPool
+import hashlib
+import json
 import re
 import yaml
-import worker_pools
 
 
 # All resources managed here should be "externally managed" in community-tc-config:
@@ -30,12 +29,15 @@ async def register_worker_pools(resources):
         if kind == "externally-managed":
             externally_managed.append(name)
         else:
+            builder = {
+                "aws_windows": aws_windows,
+            }[kind]
             pools.append(WorkerPool(
                 workerPoolId="proj-servo/" + name,
                 description="Servo `%s` workers" % name,
                 owner="servo-ops@mozilla.com",
                 emailOnError=False,
-                **getattr(worker_pools, kind)(**config)
+                **builder(**config)
             ))
 
     externally_managed = "|".join(map(re.escape, externally_managed))
@@ -64,3 +66,51 @@ async def register_hooks(resources):
 
 def parse_yaml(filename):
     return yaml.safe_load(open(os.path.join(os.path.dirname(__file__), "config", filename)))
+
+
+# Based on https://github.com/mozilla/community-tc-config/blob/master/generate/workers.py
+
+def aws(min_capacity, max_capacity, regions, capacity_per_instance_type):
+    return {
+        "providerId": "community-tc-workers-aws",
+        "config": {
+            "minCapacity": min_capacity,
+            "maxCapacity": max_capacity,
+            "launchConfigs": [
+                {
+                    "capacityPerInstance": capacity_per_instance,
+                    "region": region,
+                    "launchConfig": {
+                        "ImageId": ami_id,
+                        "InstanceType": instance_type,
+                        "InstanceMarketOptions": {"MarketType": "spot"},
+                    }
+                }
+                for region, ami_id in regions.items()
+                for instance_type, capacity_per_instance in capacity_per_instance_type.items()
+            ],
+        }
+    }
+
+def aws_windows(**yaml_input):
+    tc_admin_params = aws(**yaml_input)
+    generic_worker_config = {
+        "ed25519SigningKeyLocation": "C:\\generic-worker\\generic-worker-ed25519-signing-key.key",
+        "taskclusterProxyExecutable": "C:\\generic-worker\\taskcluster-proxy.exe",
+        "livelogExecutable": "C:\\generic-worker\\livelog.exe",
+        "workerTypeMetadata": {},
+        "sentryProject": "generic-worker",
+        "wstAudience": "communitytc",
+        "wstServerURL": "https://community-websocktunnel.services.mozilla.com",
+
+        "checkForNewDeploymentEverySecs": 600,
+        "idleTimeoutSecs": 14400,
+        "shutdownMachineOnIdle": True,
+    }
+    for launch_config in tc_admin_params["config"]["launchConfigs"]:
+        # Use a copy of `genric_worker_config` here so they each get their own `deploymentId`
+        launch_config["workerConfig"] = {"genericWorker": {"config": dict(generic_worker_config)}}
+        launch_config_bytes = json.dumps(launch_config, sort_keys=True).encode("utf8")
+        deployment_id = hashlib.sha256(launch_config_bytes).hexdigest()
+        launch_config["workerConfig"]["genericWorker"]["config"]["deploymentId"] = deployment_id
+    return tc_admin_params
