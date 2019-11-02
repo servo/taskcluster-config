@@ -1,0 +1,4 @@
+# These are managed in
+# https://github.com/mozilla/community-tc-config/blob/master/config/projects.yml
+docker: externally managed
+docker-untrusted: externally managed

@@ -9,6 +9,7 @@ os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.moz
 
 from tcadmin.appconfig import AppConfig
 from tcadmin.resources import Role
+import re
 import yaml
 
 
@@ -19,7 +20,15 @@ appconfig = AppConfig()
 
 @appconfig.generators.register
 async def worker_pools(resources):
-    resources.manage("WorkerPool=proj-servo/(?!ci$).*")
+    externally_managed = []
+    for name, config in parse_yaml("worker-pools.yml").items():
+        if config == "externally managed":
+            externally_managed.append(name)
+        else:
+            raise ValueError("unimplemented")
+
+    externally_managed = "|".join(map(re.escape, externally_managed))
+    resources.manage("WorkerPool=proj-servo/(?!(%s)$).*" % externally_managed)
 
 
 @appconfig.generators.register
