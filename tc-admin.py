@@ -105,6 +105,7 @@ def aws(min_capacity, max_capacity, regions, capacity_per_instance_type, securit
 
 def aws_windows(**yaml_input):
     tc_admin_params = aws(security_groups=["no-inbound", "rdp"], **yaml_input)
+
     generic_worker_config = {
         "ed25519SigningKeyLocation": "C:\\generic-worker\\generic-worker-ed25519-signing-key.key",
         "taskclusterProxyExecutable": "C:\\generic-worker\\taskcluster-proxy.exe",
@@ -118,10 +119,10 @@ def aws_windows(**yaml_input):
         "idleTimeoutSecs": 14400,
         "shutdownMachineOnIdle": True,
     }
+    to_be_hashed = [tc_admin_params, generic_worker_config]
+    hashed = hashlib.sha256(json.dumps(to_be_hashed, sort_keys=True).encode("utf8")).hexdigest()
+    generic_worker_config["deploymentId"] = hashed
     for launch_config in tc_admin_params["config"]["launchConfigs"]:
-        # Use a copy of `genric_worker_config` here so they each get their own `deploymentId`
-        launch_config["workerConfig"] = {"genericWorker": {"config": dict(generic_worker_config)}}
-        launch_config_bytes = json.dumps(launch_config, sort_keys=True).encode("utf8")
-        deployment_id = hashlib.sha256(launch_config_bytes).hexdigest()
-        launch_config["workerConfig"]["genericWorker"]["config"]["deploymentId"] = deployment_id
+        launch_config["workerConfig"] = {"genericWorker": {"config": generic_worker_config}}
+
     return tc_admin_params
