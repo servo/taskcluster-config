@@ -13,7 +13,10 @@ import subprocess
 BASE_AMI_PATTERN = "Windows_Server-2016-English-Full-Base-*"
 REGION = "us-west-2"
 WORKER_TYPE = "servo-win2016"
-AWS_PROVISIONER_USER_ID = "692406183521"
+
+# Account ID for `moz-fx-tc-community-workers`
+# https://github.com/mozilla/community-tc-config/pull/55/files#diff-13a616161132a2d2a028bac50f5cd928R18
+TASKCLUSTER_AWS_USER_ID = "885316786408"
 
 
 def main():
@@ -58,7 +61,7 @@ def main():
 
     ec2_wait("image-available", "--image-ids", image_id)
     ec2("modify-image-attribute", "--image-id", image_id,
-        "--launch-permission", "Add=[{UserId=%s}]" % AWS_PROVISIONER_USER_ID)
+        "--launch-permission", "Add=[{UserId=%s}]" % TASKCLUSTER_AWS_USER_ID)
 
     print("Image available. Terminating the temporary instance…")
     ec2("terminate-instances", "--instance-ids", instance_id)
