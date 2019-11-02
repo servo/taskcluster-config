@@ -4,13 +4,16 @@ if __name__ == "__main__":
     import bootstrap
 
 import os
+import sys
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
+sys.path.insert(0, os.path.dirname(__file__))
 
 
 from tcadmin.appconfig import AppConfig
-from tcadmin.resources import Role
+from tcadmin.resources import Role, WorkerPool
 import re
 import yaml
+import worker_pools
 
 
 # All resources managed here should be "externally managed" in community-tc-config:
@@ -19,20 +22,29 @@ appconfig = AppConfig()
 
 
 @appconfig.generators.register
-async def worker_pools(resources):
+async def register_worker_pools(resources):
     externally_managed = []
+    pools = []
     for name, config in parse_yaml("worker-pools.yml").items():
-        if config == "externally managed":
+        kind = config.pop("kind")
+        if kind == "externally-managed":
             externally_managed.append(name)
         else:
-            raise ValueError("unimplemented")
+            pools.append(WorkerPool(
+                workerPoolId="proj-servo/" + name,
+                description="Servo `%s` workers" % name,
+                owner="servo-ops@mozilla.com",
+                emailOnError=False,
+                **getattr(worker_pools, kind)(**config)
+            ))
 
     externally_managed = "|".join(map(re.escape, externally_managed))
     resources.manage("WorkerPool=proj-servo/(?!(%s)$).*" % externally_managed)
+    resources.update(pools)
 
 
 @appconfig.generators.register
-async def roles(resources):
+async def register_roles(resources):
     resources.manage("Role=repo:github.com/servo/servo:.*")
     resources.manage("Role=hook-id:project-servo/.*")
     resources.manage("Role=project:servo:.*")
@@ -41,12 +53,12 @@ async def roles(resources):
 
 
 @appconfig.generators.register
-async def clients(resources):
+async def register_clients(resources):
     resources.manage("Client=project/servo/.*")
 
 
 @appconfig.generators.register
-async def hooks(resources):
+async def register_hooks(resources):
     resources.manage("Hook=project-servo/.*")
 
 

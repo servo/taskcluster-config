@@ -1,4 +1,15 @@
+win2016-staging:
+    kind: aws_windows
+    min_capacity: 0
+    max_capacity: 4
+    regions:
+        us-west-2: ami-0b82803d497679b89
+    capacity_per_instance_type:
+        c5.xlarge: 1
+
 # These are managed in
 # https://github.com/mozilla/community-tc-config/blob/master/config/projects.yml
-docker: externally managed
-docker-untrusted: externally managed
+docker:
+    kind: externally-managed
+docker-untrusted:
+    kind: externally-managed
