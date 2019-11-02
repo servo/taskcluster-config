@@ -10,14 +10,14 @@ import datetime
 import subprocess
 
 
+BASE_AMI_PATTERN = "Windows_Server-2016-English-Full-Base-*"
 REGION = "us-west-2"
 WORKER_TYPE = "servo-win2016"
 AWS_PROVISIONER_USER_ID = "692406183521"
 
 
 def main():
-    base_ami_pattern = read_file("base-ami.txt").strip()
-    base_ami = most_recent_ami(base_ami_pattern)
+    base_ami = most_recent_ami(BASE_AMI_PATTERN)
     print("Starting an instance with base image:", base_ami["ImageId"], base_ami["Name"])
 
     key_name = "%s_%s" % (WORKER_TYPE, REGION)
@@ -67,7 +67,7 @@ def main():
 def most_recent_ami(name_pattern):
     result = ec2(
         "describe-images", "--owners", "amazon",
-        "--filters", "Name=platform,Values=windows", b"Name=name,Values=" + name_pattern,
+        "--filters", "Name=platform,Values=windows", "Name=name,Values=" + name_pattern,
     )
     return max(result["Images"], key=lambda x: x["CreationDate"])
 
