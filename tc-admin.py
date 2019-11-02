@@ -33,11 +33,11 @@ async def worker_pools(resources):
 
 @appconfig.generators.register
 async def roles(resources):
-    resources.manage("Role=hook-id:project-servo/.*")
     resources.manage("Role=repo:github.com/servo/servo:.*")
+    resources.manage("Role=hook-id:project-servo/.*")
     resources.manage("Role=project:servo:.*")
-    for role in parse_yaml("roles.yml"):
-        resources.add(Role(**role))
+    for config in parse_yaml("roles.yml"):
+        resources.add(Role(**config))
 
 
 @appconfig.generators.register
@@ -50,9 +50,5 @@ async def hooks(resources):
     resources.manage("Hook=project-servo/.*")
 
 
-here = os.path.dirname(__file__)
-config = os.path.join(here, "config")
-
-
 def parse_yaml(filename):
-    return yaml.safe_load(open(os.path.join(config, filename)))
+    return yaml.safe_load(open(os.path.join(os.path.dirname(__file__), "config", filename)))
