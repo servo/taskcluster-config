@@ -70,7 +70,11 @@ def parse_yaml(filename):
 
 # Based on https://github.com/mozilla/community-tc-config/blob/master/generate/workers.py
 
-def aws(min_capacity, max_capacity, regions, capacity_per_instance_type):
+
+AWS_CONFIG = parse_yaml("aws.yml")
+
+
+def aws(min_capacity, max_capacity, regions, capacity_per_instance_type, security_groups):
     return {
         "providerId": "community-tc-workers-aws",
         "config": {
@@ -84,6 +88,10 @@ def aws(min_capacity, max_capacity, regions, capacity_per_instance_type):
                         "ImageId": ami_id,
                         "InstanceType": instance_type,
                         "InstanceMarketOptions": {"MarketType": "spot"},
+                        "SecurityGroupIds": [
+                            AWS_CONFIG["region " + region]["security groups"][security_group]
+                            for security_group in security_groups
+                        ],
                     }
                 }
                 for region, ami_id in regions.items()
@@ -93,7 +101,7 @@ def aws(min_capacity, max_capacity, regions, capacity_per_instance_type):
     }
 
 def aws_windows(**yaml_input):
-    tc_admin_params = aws(**yaml_input)
+    tc_admin_params = aws(security_groups=["no-inbound", "rdp"], **yaml_input)
     generic_worker_config = {
         "ed25519SigningKeyLocation": "C:\\generic-worker\\generic-worker-ed25519-signing-key.key",
         "taskclusterProxyExecutable": "C:\\generic-worker\\taskcluster-proxy.exe",
