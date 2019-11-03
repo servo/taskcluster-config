@@ -37,7 +37,7 @@
         - "--login"
         - "-e"
         - "-c"
-        - |
+        - >-
           git init repo &&
           cd repo &&
           git fetch --depth 1 "$GIT_URL" "$GIT_REF" &&
