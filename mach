@@ -9,20 +9,19 @@ os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.moz
 
 here = os.path.dirname(__file__)
 here = os.path.abspath(here)
-venv = os.path.join(here, ".venv")
 
 
-def install_virtualenv():
+def install(venv, python, requirements_file):
+    venv = os.path.join(here, venv)
+
     # Create a virtualenv if it doesn’t exist
     if not os.path.isdir(venv):
-        exit_code = subprocess.call(["virtualenv", "-p", sys.executable, venv])
+        exit_code = subprocess.call(["virtualenv", "-p", python, venv])
         if exit_code:
             sys.exit(exit_code)
 
-
-def install_dependencies():
     # Install requirements with pip, unless we already have
-    requirements_file = os.path.join(here, "python-requirements")
+    requirements_file = os.path.join(here, *requirements_file)
     requirements = open(requirements_file).read()
 
     installed_file = os.path.join(venv, "installed-requirements")
@@ -37,6 +36,8 @@ def install_dependencies():
         if exit_code:
             sys.exit(exit_code)
         shutil.copyfile(requirements_file, installed_file)
+
+    return venv
 
 
 def command_file(command):
@@ -54,13 +55,13 @@ def command_file(command):
 
 
 def run(command="help", *extra_args):
-    install_virtualenv()
-    install_dependencies()
     if command == "salt":
+        venv = install(".venv2", "python2.7", ["macos", "salt-requirements"])
         args = [os.path.join(venv, "bin", "salt-ssh")]
         cwd = os.path.join(here, "macos")
     else:
-        args = [command_file(command)]
+        venv = install(".venv3", sys.executable, ["python-requirements"])
+        args = [os.path.join(venv, "bin", "python"), command_file(command)]
         cwd = here
     sys.exit(subprocess.call(args + list(extra_args), cwd=cwd))
 
