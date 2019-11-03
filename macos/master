@@ -1,11 +1,10 @@
 root_dir: .salt
 file_roots:
   base:
-    - states
-extension_modules: ../modules
+    - .
+extension_modules: ..
 ext_pillar:
-  - taskcluster_secrets:
-  - ssh_keys:
+  - external_data:
 roster_defaults:
     # https://github.com/saltstack/salt/issues/50477
     minion_opts:
