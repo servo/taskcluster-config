@@ -1,4 +1,75 @@
+- roleId: project:servo:decision-task/base
+  description: |
+    Base scopes for running Servo’s decision task.
+
+    These are granted (also) to **untrusted** tasks,
+    such as when testing a pull request from anyone as soon as it is opened, before any review.
+  scopes:
+   - queue:scheduler-id:-
+
+- roleId: project:servo:decision-task/trusted
+  description: |
+    Scopes for running a **trusted** Servo decision task.
+
+    These include semi-sensitive access.
+    For example, a malicious task could poison a cache
+    and affect other tasks that run on the same worker.
+    Trust come for example from reviewing a pull request before it is added to Homu’s queue.
+  scopes:
+    - assume:project:servo:decision-task/base
+    - queue:create-task:medium:proj-servo/*
+#    - queue:route:tc-treeherder-staging.v2._/servo-*
+#    - queue:route:tc-treeherder.v2._/servo-*
+    - queue:route:index.project.servo.servo.*
+    - index:insert-task:project.servo.servo.*
+    - project:servo:docker-worker-kvm:capability:privileged
+    - docker-worker:cache:*
+    - generic-worker:cache:*
+
+
 - roleId: repo:github.com/servo/servo:branch:*
   description: Scopes granted for push events to any branch of servo/servo
   scopes:
     - assume:project:servo:decision-task/trusted
+
+
+- roleId: repo:github.com/servo/servo:branch:master
+  description: >
+    When a merge commit has been tested on the `auto` branch and has passed all test suites,
+    it is then pushed to `master`.
+    Only then should we upload to <https://doc.servo.org>.
+  scopes:
+    - secrets:get:project/servo/doc.servo.org
+
+
+- roleId: repo:github.com/servo/servo:pull-request
+  description: |
+    Scopes granted to tasks created when a new pull request is opened/reopened/pushed by anyone.
+    These tasks are untrusted, so this needs special care:
+
+    * Separate worker types
+    * Treeherder access only to the dedicated tree, servo-prs
+  scopes:
+    - assume:project:servo:decision-task/base
+    - queue:create-task:medium:proj-servo/docker-untrusted
+#    - queue:route:tc-treeherder-staging.v2._/servo-prs.*
+#    - queue:route:tc-treeherder.v2._/servo-prs.*
+
+
+- roleId: hook-id:project-servo/daily
+  description: >
+    Scopes granted to the daily decision task defined in
+    <https://github.com/servo/taskcluster-config/blob/master/config/hooks.yml>
+  scopes:
+    - assume:project:servo:decision-task/trusted
+#    - queue:route:notify.irc-channel.#servo.on-failed
+    - secrets:get:project/servo/github-homebrew-token
+    - secrets:get:project/servo/s3-upload
+    - secrets:get:project/servo/s3-upload-credentials
+    - secrets:get:project/servo/wpt-sync
+
+- roleId: project:servo:grants/scheduler-id
+  description: >
+    For manually-created CLI clients that have `project-admin:servo` but not `login-identity:*`
+  scopes:
+    - queue:scheduler-id:-
