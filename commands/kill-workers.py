@@ -12,9 +12,13 @@ def main(worker_pool):
             if w["state"] == "stopped":
                 stopped += 1
             else:
-                print(w["workerGroup"], w["workerId"], w["state"])
                 workers.append(w)
     wm.listWorkersForWorkerPool("proj-servo/" + worker_pool, paginationHandler=handle)
+
+    workers.sort(key=lambda w: w["created"])
+    print("Created                  ID                  State")
+    for w in workers:
+        print(w["created"], w["workerId"], w["state"])
     print("… and %s stopped" % stopped)
 
     if input("Remove all? y/n ") == "y":
