@@ -99,20 +99,8 @@ def aws(min_capacity, max_capacity, regions, capacity_per_instance_type, securit
 
 def aws_windows(**yaml_input):
     tc_admin_params = aws(security_groups=["no-inbound", "rdp"], **yaml_input)
+    generic_worker_config = parse_yaml("windows-generic-worker.yml")
 
-    generic_worker_config = {
-        "ed25519SigningKeyLocation": "C:\\generic-worker\\generic-worker-ed25519-signing-key.key",
-        "taskclusterProxyExecutable": "C:\\generic-worker\\taskcluster-proxy.exe",
-        "livelogExecutable": "C:\\generic-worker\\livelog.exe",
-        "workerTypeMetadata": {},
-        "sentryProject": "generic-worker",
-        "wstAudience": "communitytc",
-        "wstServerURL": "https://community-websocktunnel.services.mozilla.com",
-
-        "checkForNewDeploymentEverySecs": 600,
-        "idleTimeoutSecs": 14400,
-        "shutdownMachineOnIdle": True,
-    }
     to_be_hashed = [tc_admin_params, generic_worker_config]
     hashed = hashlib.sha256(json.dumps(to_be_hashed, sort_keys=True).encode("utf8")).hexdigest()
     generic_worker_config["deploymentId"] = hashed

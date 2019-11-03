@@ -1,4 +1,4 @@
-# https://github.com/mozilla/community-tc-config/blob/3c6787c9a380c41cacd4c943b0129afd69cb422d/deployment-details.md#aws
+# https://github.com/mozilla/community-tc-config/blob/3c6787c9a/deployment-details.md#aws
 region us-west-1:
  vpcId: vpc-0b4380783427d329a
  igwId: igw-06c8372f38aad1220
