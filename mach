@@ -8,47 +8,62 @@ import sys
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
 
 here = os.path.dirname(__file__)
+here = os.path.abspath(here)
 venv = os.path.join(here, ".venv")
-commands = os.path.join(here, "commands")
-
-if len(sys.argv) > 1:
-    command = sys.argv[1]
-else:
-    command = "help"
-
-command_file = os.path.join(commands, command + ".py")
-if not os.path.isfile(command_file):
-    print("Usage: %s <command> [args]" % sys.argv[0])
-    print()
-    print("Commands:")
-    for command in os.listdir(commands):
-        if command.endswith(".py"):
-            print("  " + command[:-len(".py")])
-    sys.exit(1)
-
-# Create a virtualenv if it doesn’t exist
-if not os.path.isdir(venv):
-    exit_code = subprocess.call(["virtualenv", "-p", sys.executable, venv])
-    if exit_code:
-        sys.exit(exit_code)
-
-# Install requirements with pip, unless we already have
-requirements_file = os.path.join(here, "python-requirements")
-requirements = open(requirements_file).read()
-
-installed_file = os.path.join(venv, "installed-requirements")
-try:
-    installed = open(installed_file).read()
-except OSError:
-    installed = ""
-
-if installed != requirements:
-    pip = os.path.join(venv, "bin", "pip")
-    exit_code = subprocess.call([pip, "install", "-r", requirements_file])
-    if exit_code:
-        sys.exit(exit_code)
-    shutil.copyfile(requirements_file, installed_file)
 
 
-py = os.path.join(venv, "bin", "python")
-sys.exit(subprocess.call([py, command_file] + sys.argv[2:], cwd=here))
+def install_virtualenv():
+    # Create a virtualenv if it doesn’t exist
+    if not os.path.isdir(venv):
+        exit_code = subprocess.call(["virtualenv", "-p", sys.executable, venv])
+        if exit_code:
+            sys.exit(exit_code)
+
+
+def install_dependencies():
+    # Install requirements with pip, unless we already have
+    requirements_file = os.path.join(here, "python-requirements")
+    requirements = open(requirements_file).read()
+
+    installed_file = os.path.join(venv, "installed-requirements")
+    try:
+        installed = open(installed_file).read()
+    except OSError:
+        installed = ""
+
+    if installed != requirements:
+        pip = os.path.join(venv, "bin", "pip")
+        exit_code = subprocess.call([pip, "install", "-r", requirements_file])
+        if exit_code:
+            sys.exit(exit_code)
+        shutil.copyfile(requirements_file, installed_file)
+
+
+def command_file(command):
+    commands = os.path.join(here, "commands")
+    command_file = os.path.join(commands, command + ".py")
+    if not os.path.isfile(command_file):
+        print("Usage: %s <command> [args]" % sys.argv[0])
+        print()
+        print("Commands:")
+        for command in sorted(os.listdir(commands) + ["salt.py"]):
+            if command.endswith(".py"):
+                print("  " + command[:-len(".py")])
+        sys.exit(1)
+    return command_file
+
+
+def run(command="help", *extra_args):
+    install_virtualenv()
+    install_dependencies()
+    if command == "salt":
+        args = [os.path.join(venv, "bin", "salt-ssh")]
+        cwd = os.path.join(here, "macos")
+    else:
+        args = [command_file(command)]
+        cwd = here
+    sys.exit(subprocess.call(args + list(extra_args), cwd=cwd))
+
+
+if __name__ == "__main__":
+    run(*sys.argv[1:])
