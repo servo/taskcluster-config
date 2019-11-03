@@ -7,6 +7,15 @@ win2016-staging:
     capacity_per_instance_type:
         c5.xlarge: 1
 
+win2016:
+    kind: aws_windows
+    min_capacity: 1
+    max_capacity: 10
+    regions:
+        us-west-2: ami-040db55391fa01dd7
+    capacity_per_instance_type:
+        c5.xlarge: 1
+
 # These are managed in
 # https://github.com/mozilla/community-tc-config/blob/master/config/projects.yml
 docker:
