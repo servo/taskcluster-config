@@ -13,7 +13,8 @@ def main(worker_pool):
 
     if input("Remove all? y/n ") == "y":
         for w in workers:
-            print(".", end="")
+            sys.stdout.write(".")
+            sys.stdout.flush()
             wm.removeWorker("proj-servo/" + worker_pool, w["workerGroup"], w["workerId"])
         print()
 
