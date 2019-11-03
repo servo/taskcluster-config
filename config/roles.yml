@@ -20,8 +20,8 @@
     - queue:create-task:medium:proj-servo/*
 #    - queue:route:tc-treeherder-staging.v2._/servo-*
 #    - queue:route:tc-treeherder.v2._/servo-*
-    - queue:route:index.project.servo.servo.*
-    - index:insert-task:project.servo.servo.*
+    - queue:route:index.project.servo.*
+    - index:insert-task:project.servo.*
     - project:servo:docker-worker-kvm:capability:privileged
     - docker-worker:cache:*
     - generic-worker:cache:*
