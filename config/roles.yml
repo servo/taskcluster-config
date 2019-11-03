@@ -18,8 +18,8 @@
   scopes:
     - assume:project:servo:decision-task/base
     - queue:create-task:medium:proj-servo/*
-#    - queue:route:tc-treeherder-staging.v2._/servo-*
-#    - queue:route:tc-treeherder.v2._/servo-*
+    - queue:route:tc-treeherder-staging.v2._/servo-*
+    - queue:route:tc-treeherder.v2._/servo-*
     - queue:route:index.project.servo.*
     - index:insert-task:project.servo.*
     - project:servo:docker-worker-kvm:capability:privileged
@@ -52,8 +52,8 @@
   scopes:
     - assume:project:servo:decision-task/base
     - queue:create-task:medium:proj-servo/docker-untrusted
-#    - queue:route:tc-treeherder-staging.v2._/servo-prs.*
-#    - queue:route:tc-treeherder.v2._/servo-prs.*
+    - queue:route:tc-treeherder-staging.v2._/servo-prs.*
+    - queue:route:tc-treeherder.v2._/servo-prs.*
 
 
 - roleId: hook-id:project-servo/daily
@@ -62,7 +62,7 @@
     <https://github.com/servo/taskcluster-config/blob/master/config/hooks.yml>
   scopes:
     - assume:project:servo:decision-task/trusted
-#    - queue:route:notify.irc-channel.#servo.on-failed
+    - queue:route:notify.irc-channel.#servo.on-failed
     - secrets:get:project/servo/github-homebrew-token
     - secrets:get:project/servo/s3-upload
     - secrets:get:project/servo/s3-upload-credentials

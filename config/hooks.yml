@@ -18,8 +18,8 @@
       description: ""
       owner: servo-ops@mozilla.com
       source: https://github.com/servo/taskcluster-config/blob/master/config/hooks.yml
-#    routes:
-#      - notify.irc-channel.#servo.on-failed
+    routes:
+      - notify.irc-channel.#servo.on-failed
     scopes:
       - assume:hook-id:project-servo/daily
     expires:
