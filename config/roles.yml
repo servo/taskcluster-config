@@ -5,7 +5,7 @@
     These are granted (also) to **untrusted** tasks,
     such as when testing a pull request from anyone as soon as it is opened, before any review.
   scopes:
-   - queue:scheduler-id:-
+   - queue:scheduler-id:taskcluster-github
 
 - roleId: project:servo:decision-task/trusted
   description: |
@@ -67,9 +67,3 @@
     - secrets:get:project/servo/s3-upload
     - secrets:get:project/servo/s3-upload-credentials
     - secrets:get:project/servo/wpt-sync
-
-- roleId: project:servo:grants/scheduler-id
-  description: >
-    For manually-created CLI clients that have `project-admin:servo` but not `login-identity:*`
-  scopes:
-    - queue:scheduler-id:-
