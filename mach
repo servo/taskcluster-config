@@ -8,7 +8,7 @@ import sys
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
 
 here = os.path.dirname(__file__)
-venv = os.path.join(here, "venv")
+venv = os.path.join(here, ".venv")
 commands = os.path.join(here, "commands")
 
 if len(sys.argv) > 1:
