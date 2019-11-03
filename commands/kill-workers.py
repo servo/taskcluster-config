@@ -4,7 +4,8 @@ import taskcluster
 
 def main(worker_pool):
     wm = taskcluster.WorkerManager(taskcluster.optionsFromEnvironment())
-    workers = wm.listWorkersForWorkerPool("proj-servo/" + worker_pool)["workers"]
+    result = wm.listWorkersForWorkerPool("proj-servo/" + worker_pool)
+    workers = [w for w in result["workers"] if w["state"] != "stopped"]
 
     for w in workers:
         print(w["workerGroup"], w["workerId"], w["state"])
