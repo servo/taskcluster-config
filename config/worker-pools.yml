@@ -1,9 +1,9 @@
 win2016-staging:
     kind: aws_windows
     min_capacity: 0
-    max_capacity: 4
+    max_capacity: 2
     regions:
-        us-west-2: ami-027f1213323c74402
+        us-west-2: ami-040db55391fa01dd7
     capacity_per_instance_type:
         c5.xlarge: 1
 
