@@ -1,0 +1,51 @@
+- hookGroupId: project-servo
+  hookId: daily
+  name: Daily tasks for Servo
+  description:
+    Tasks are defined in-tree in `etc/ci/taskcluster/decision-task.py`.
+    Scopes at `hook-id:project-servo/daily`.
+  owner: servo-ops@mozilla.com
+  emailOnError: true
+  schedule: []
+  #  - 7 13 10 * * *
+  bindings: []
+  triggerSchema: {}
+  task:
+    provisionerId: proj-servo
+    workerType: docker
+    metadata:
+      name: "Servo daily: decision task. On failure, ping SimonSapin"
+      description: ""
+      owner: servo-ops@mozilla.com
+      source: https://github.com/servo/taskcluster-config/blob/master/config/hooks.yml
+#    routes:
+#      - notify.irc-channel.#servo.on-failed
+    scopes:
+      - assume:hook-id:project-servo/daily
+    expires:
+      $fromNow: 3 months
+    deadline:
+      $fromNow: 12 hours
+    payload:
+      maxRunTime: 600
+      image: "servobrowser/taskcluster-bootstrap:decision-task\
+        @sha256:28045b7ec0485ef363f8cb14f194008b47e9ede99f2ea40a1e945e921fce976e"
+      features:
+        taskclusterProxy: true
+      command:
+        - /bin/bash
+        - "--login"
+        - "-e"
+        - "-c"
+        - |
+          git init repo &&
+          cd repo &&
+          git fetch --depth 1 "$GIT_URL" "$GIT_REF" &&
+          git reset --hard FETCH_HEAD &&
+          python3 etc/taskcluster/decision_task.py
+      env:
+        GIT_URL: https://github.com/servo/servo.git
+        GIT_REF: refs/heads/master
+        TASK_FOR: daily
+        TASK_OWNER: servo-ops@mozilla.com
+        TASK_SOURCE: https://github.com/servo/taskcluster-config/blob/master/config/hooks.yml
