@@ -66,7 +66,7 @@ sshkeys:
     - dataset:
         provisionerId: proj-servo
         workerType: macos
-        workerGroup: servo-macos
+        workerGroup: proj-servo
         workerId: {{ grains["id"] }}
         tasksDir: {{ home }}/tasks
         publicIP: {{ salt.network.ip_addrs()[0] }}
@@ -76,9 +76,9 @@ sshkeys:
         taskclusterProxyExecutable: {{ bin }}/taskcluster-proxy
         taskclusterProxyPort: 8080
         livelogExecutable: {{ bin }}/livelog
-        wstAudience: taskcluster-net
-        wstServerURL: https://websocktunnel.tasks.build
-        rootURL: https://taskcluster.net
+        wstAudience: communitytc
+        wstServerURL: https://community-websocktunnel.services.mozilla.com
+        rootURL: https://community-tc.services.mozilla.com
     - watch_in:
       - service: net.generic.worker
 
