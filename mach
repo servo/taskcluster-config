@@ -7,12 +7,9 @@ import sys
 
 os.environ.setdefault("TASKCLUSTER_ROOT_URL", "https://community-tc.services.mozilla.com/")
 
-here = os.path.dirname(__file__)
-here = os.path.abspath(here)
 
-
-def install(venv, python, requirements_file):
-    venv = os.path.join(here, venv)
+def install(base, python):
+    venv = os.path.join(base, ".venv")
 
     # Create a virtualenv if it doesn’t exist
     if not os.path.isdir(venv):
@@ -21,7 +18,7 @@ def install(venv, python, requirements_file):
             sys.exit(exit_code)
 
     # Install requirements with pip, unless we already have
-    requirements_file = os.path.join(here, *requirements_file)
+    requirements_file = os.path.join(base, "python-requirements")
     requirements = open(requirements_file).read()
 
     installed_file = os.path.join(venv, "installed-requirements")
@@ -40,7 +37,7 @@ def install(venv, python, requirements_file):
     return venv
 
 
-def command_file(command):
+def command_file(here, command):
     commands = os.path.join(here, "commands")
     command_file = os.path.join(commands, command + ".py")
     if not os.path.isfile(command_file):
@@ -54,16 +51,21 @@ def command_file(command):
     return command_file
 
 
-def run(command="help", *extra_args):
+def run(command="help", *cli_args):
+    here = os.path.abspath(os.path.dirname(__file__))
+
     if command == "salt":
-        venv = install(".venv2", "python2.7", ["macos", "salt-requirements"])
-        args = [os.path.join(venv, "bin", "salt-ssh")]
-        cwd = os.path.join(here, "macos")
+        base = os.path.join(here, "salt")
+        python = "python2"
+        args = ["salt-ssh"]
     else:
-        venv = install(".venv3", sys.executable, ["python-requirements"])
-        args = [os.path.join(venv, "bin", "python"), command_file(command)]
-        cwd = here
-    sys.exit(subprocess.call(args + list(extra_args), cwd=cwd))
+        base = here
+        python = sys.executable
+        args = ["python", command_file(here, command)]
+
+    venv = install(base, python)
+    args[0] = os.path.join(venv, "bin", args[0])
+    sys.exit(subprocess.call(args + list(cli_args), cwd=base))
 
 
 if __name__ == "__main__":
