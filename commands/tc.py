@@ -1,6 +1,6 @@
 from tcadmin.appconfig import AppConfig
 from tcadmin.main import main
-from tcadmin.resources import Hook, Role, WorkerPool
+from tcadmin.resources import Client, Hook, Role, WorkerPool
 import hashlib
 import json
 import os
@@ -50,6 +50,8 @@ async def register_roles(resources):
 @appconfig.generators.register
 async def register_clients(resources):
     resources.manage("Client=project/servo/.*")
+    for config in parse_yaml("clients.yml"):
+        resources.add(Client(**config))
 
 
 @appconfig.generators.register

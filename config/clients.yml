@@ -1,0 +1,6 @@
+- clientId: project/servo/worker/macos/1
+  description: Credentials for the `proj-servo/macos` worker pool
+  scopes:
+    - assume:worker-pool:proj-servo/macos
+    - queue:claim-work:proj-servo/macos
+    - queue:worker-id:proj-servo/mac*
