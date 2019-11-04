@@ -1,3 +1,11 @@
+# After creating a new client, run
+#
+#    ./mach reset-access-token project/servo/EXAMPLE
+#
+# in order to have its access token in the Secrets service at key:
+#
+#     project/servo/tc-client/EXAMPLE
+
 - clientId: project/servo/worker/macos/1
   description: Credentials for the `proj-servo/macos` worker pool
   scopes:

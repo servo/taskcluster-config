@@ -21,13 +21,15 @@ def main(worker_pool):
         print(w["created"], w["workerId"], w["state"])
     print("… and %s stopped" % stopped)
 
-    if input("Remove all? y/n ") == "y":
-        for w in workers:
-            sys.stdout.write(".")
-            sys.stdout.flush()
-            wm.removeWorker("proj-servo/" + worker_pool, w["workerGroup"], w["workerId"])
-        print()
+    if input("Remove all? [y/n] ") != "y":
+        return 1
+
+    for w in workers:
+        sys.stdout.write(".")
+        sys.stdout.flush()
+        wm.removeWorker("proj-servo/" + worker_pool, w["workerGroup"], w["workerId"])
+    print()
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    sys.exit(main(*sys.argv[1:]))
