@@ -71,47 +71,48 @@ def parse_yaml(filename):
 AWS_CONFIG = parse_yaml("aws.yml")
 
 
-def aws(min_capacity, max_capacity, regions, capacity_per_instance_type, security_groups):
+def launch_configs(worker_config, regions, capacity_per_instance_type, security_groups):
+    return [
+        {
+            "capacityPerInstance": capacity_per_instance,
+            "region": region,
+            "workerConfig": worker_config,
+            "launchConfig": {
+                "ImageId": ami_id,
+                "InstanceType": instance_type,
+                "InstanceMarketOptions": {"MarketType": "spot"},
+                "Placement": {"AvailabilityZone": az},
+                "SubnetId": subnet_id,
+                "SecurityGroupIds": [
+                    AWS_CONFIG["region " + region]["security groups"][security_group]
+                    for security_group in security_groups
+                ],
+            }
+        }
+        for region, ami_id in regions.items()
+        for az, subnet_id in AWS_CONFIG["region " + region]["subnets by AZ"].items()
+        for instance_type, capacity_per_instance in capacity_per_instance_type.items()
+    ]
+
+
+def aws_windows(min_capacity, max_capacity, **kwargs):
+    generic_worker_config = parse_yaml("windows-generic-worker.yml")
+    configs = launch_configs(
+        worker_config={"genericWorker": {"config": generic_worker_config}},
+        security_groups=["no-inbound", "rdp"],
+        **kwargs
+    )
+    # Update the same mutable dict object that is also referenced in each launch config dict:
+    hashed = hashlib.sha256(json.dumps(configs, sort_keys=True).encode("utf8")).hexdigest()
+    generic_worker_config["deploymentId"] = hashed[:16]
     return {
         "providerId": "community-tc-workers-aws",
         "config": {
             "minCapacity": min_capacity,
             "maxCapacity": max_capacity,
-            "launchConfigs": [
-                {
-                    "capacityPerInstance": capacity_per_instance,
-                    "region": region,
-                    "launchConfig": {
-                        "ImageId": ami_id,
-                        "InstanceType": instance_type,
-                        "InstanceMarketOptions": {"MarketType": "spot"},
-                        "Placement": {"AvailabilityZone": az},
-                        "SubnetId": subnet_id,
-                        "SecurityGroupIds": [
-                            AWS_CONFIG["region " + region]["security groups"][security_group]
-                            for security_group in security_groups
-                        ],
-                    }
-                }
-                for region, ami_id in regions.items()
-                for az, subnet_id in AWS_CONFIG["region " + region]["subnets by AZ"].items()
-                for instance_type, capacity_per_instance in capacity_per_instance_type.items()
-            ],
+            "launchConfigs": configs,
         }
     }
-
-
-def aws_windows(**yaml_input):
-    tc_admin_params = aws(security_groups=["no-inbound", "rdp"], **yaml_input)
-    generic_worker_config = parse_yaml("windows-generic-worker.yml")
-
-    to_be_hashed = [tc_admin_params, generic_worker_config]
-    hashed = hashlib.sha256(json.dumps(to_be_hashed, sort_keys=True).encode("utf8")).hexdigest()
-    generic_worker_config["deploymentId"] = hashed
-    for launch_config in tc_admin_params["config"]["launchConfigs"]:
-        launch_config["workerConfig"] = {"genericWorker": {"config": generic_worker_config}}
-
-    return tc_admin_params
 
 
 if __name__ == "__main__":
