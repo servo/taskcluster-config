@@ -30,7 +30,7 @@
     payload:
       maxRunTime: 600
       image: "servobrowser/taskcluster-bootstrap:decision-task\
-        @sha256:28045b7ec0485ef363f8cb14f194008b47e9ede99f2ea40a1e945e921fce976e"
+        @sha256:7471a998e4462638c8d3e2cf0b4a99c9a5c8ca9f2ec0ae01cc069473b35cde10"
       features:
         taskclusterProxy: true
       command:
