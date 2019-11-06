@@ -4,7 +4,40 @@ import datetime
 import subprocess
 
 
+# Amazon provides an ovewhelming number of different Windows images,
+# so it’s hard to find what’s relevant.
+# Their console might show a paginated view like this:
+#
+# > ⇤ ← 1 to 50 of 13,914 AMIs → ⇥
+#
+# Let’s grep through this with the API:
+#
+# ```sh
+# aws ec2 describe-images --owners amazon --filters 'Name=platform,Values=windows' \
+#     --query 'Images[*].[ImageId,Name,Description]' --output table > /tmp/images
+# < /tmp/images less -S
+# ```
+#
+# It turns out that these images are all based on Windows Server,
+# but their number is explained by the presence of many (all?) combinations of:
+#
+# * Multiple OS Version
+# * Many available locales
+# * *Full* (a.k.a. *with Desktop Experience*), or *Core*
+# * *Base* with only the OS, or multiple flavors with tools like SQL Server pre-installed
+#
+# If we make some choices and filter the list:
+#
+# ```sh
+# < /tmp/images grep 2016-English-Full-Base | less -S
+# ```
+#
+# … we get a much more manageable handlful of images with names like
+# `Windows_Server-2016-English-Full-Base-2018.09.15` or other dates.
+#
+# Let’s pick the most recent of those.
 BASE_AMI_PATTERN = "Windows_Server-2016-English-Full-Base-*"
+
 REGION = "us-west-2"
 WORKER_TYPE = "servo-win2016"
 
