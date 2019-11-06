@@ -58,7 +58,9 @@ def main(tmp):
     with open(key_filename, "w") as f:
         f.write(result["KeyMaterial"])
 
-    user_data = b"<powershell>\n%s\n</powershell>" % read_file("first-boot.ps1")
+    ps1 = os.path.join(os.path.dirname(__file__), "..", "config", "first-boot.ps1")
+    with open(ps1) as f:
+        user_data = "<powershell>\n%s\n</powershell>" % f.read()
     result = ec2(
         "run-instances", "--image-id", base_ami["ImageId"],
         "--key-name", key_name,
@@ -128,15 +130,6 @@ def ec2(*args):
     output = subprocess.check_output(args)
     if output:
         return json.loads(output)
-
-
-def read_file(filename):
-    with open(here(filename), "rb") as f:
-        return f.read()
-
-
-def here(filename):
-    return os.path.join(os.path.dirname(__file__), "..", "windows", filename)
 
 
 if __name__ == "__main__":
