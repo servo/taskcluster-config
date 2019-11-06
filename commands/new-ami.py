@@ -40,7 +40,6 @@ import tempfile
 BASE_AMI_PATTERN = "Windows_Server-2016-English-Full-Base-*"
 
 REGION = "us-west-2"
-WORKER_TYPE = "servo-win2016"
 
 # Account ID for `moz-fx-tc-community-workers`
 # https://github.com/mozilla/community-tc-config/pull/55/files#diff-13a616161132a2d2a028bac50f5cd928R18
@@ -48,7 +47,12 @@ TASKCLUSTER_AWS_USER_ID = "885316786408"
 
 
 def main(tmp):
-    base_ami = most_recent_ami(BASE_AMI_PATTERN)
+    result = ec2(
+        "describe-images", "--owners", "amazon",
+        "--filters", "Name=platform,Values=windows", "Name=name,Values=" + BASE_AMI_PATTERN,
+    )
+    # Find the most recent
+    base_ami = max(result["Images"], key=lambda x: x["CreationDate"])
     print("Starting an instance with base image:", base_ami["ImageId"], base_ami["Name"])
 
     key_name = "ami-bootstrap"
@@ -73,9 +77,6 @@ def main(tmp):
     assert len(result["Instances"]) == 1
     instance_id = result["Instances"][0]["InstanceId"]
 
-    ec2("create-tags", "--resources", instance_id, "--tags",
-        "Key=Name,Value=TC %s base instance" % WORKER_TYPE)
-
     print("Waiting for password data to be available…")
     ec2_wait("password-data-available", "--instance-id", instance_id)
     result = ec2("get-password-data", "--instance-id", instance_id,
@@ -85,9 +86,8 @@ def main(tmp):
     print("Waiting for the instance to finish executing first-boot.ps1 and shut down…")
     ec2_wait("instance-stopped", "--instance-id", instance_id)
 
-    now = datetime.datetime.utcnow().strftime("%Y-%m-%d_%H.%M.%S")
     image_id = ec2("create-image", "--instance-id", instance_id,
-                   "--name", "TC %s %s" % (WORKER_TYPE, now))["ImageId"]
+                   "--name", "TC bootstrap")["ImageId"]
     print("Started creating image with ID %s …" % image_id)
 
     ec2_wait("image-available", "--image-ids", image_id)
@@ -96,14 +96,6 @@ def main(tmp):
 
     print("Image available. Terminating the temporary instance…")
     ec2("terminate-instances", "--instance-ids", instance_id)
-
-
-def most_recent_ami(name_pattern):
-    result = ec2(
-        "describe-images", "--owners", "amazon",
-        "--filters", "Name=platform,Values=windows", "Name=name,Values=" + name_pattern,
-    )
-    return max(result["Images"], key=lambda x: x["CreationDate"])
 
 
 def ec2_wait(*args):
@@ -116,13 +108,6 @@ def ec2_wait(*args):
         except subprocess.CalledProcessError as err:
             if err.returncode != 255:
                 raise
-
-
-def try_ec2(*args):
-    try:
-        return ec2(*args)
-    except subprocess.CalledProcessError:
-        return None
 
 
 def ec2(*args):
