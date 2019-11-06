@@ -127,7 +127,8 @@ First, make your changes to `commands/new-ami.py` or `windows/first-boot.ps1`.
 double-check whether the base name of the file has changed
 to make sure that the URL as a whole is valid.
 
-Run `./mach new-ami`. This can take many minutes to complete.
+Run `./mach new-ami`. This can take at least half an hour to complete.
+The `Waiter […] Max attempts exceeded` messages are safe to ignore.
 
 The tool eventually prints a newly-generated password for the `Administrator` Windows user,
 and an image ID.

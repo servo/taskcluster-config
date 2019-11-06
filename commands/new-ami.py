@@ -4,6 +4,8 @@ import os
 import subprocess
 import tempfile
 
+import taskcluster
+
 
 # Amazon provides an ovewhelming number of different Windows images,
 # so it’s hard to find what’s relevant.
@@ -47,13 +49,23 @@ TASKCLUSTER_AWS_USER_ID = "885316786408"
 
 
 def main(tmp):
+    options = taskcluster.optionsFromEnvironment()
+    secrets = taskcluster.Secrets(options)
+    def set_sercret(name, value):
+        payload = {"secret": value, "expires": datetime.datetime(3000, 1, 1, 0, 0, 0)}
+        secrets.set("project/servo/windows-administrator/" + name, payload)
+
+    # Ensure we have appropriate credentials for writing secrets now
+    # rather than at the end of the lengthy bootstrap process.
+    set_sercret("dummy", {})
+
     result = ec2(
         "describe-images", "--owners", "amazon",
         "--filters", "Name=platform,Values=windows", "Name=name,Values=" + BASE_AMI_PATTERN,
     )
     # Find the most recent
     base_ami = max(result["Images"], key=lambda x: x["CreationDate"])
-    print("Starting an instance with base image:", base_ami["ImageId"], base_ami["Name"])
+    log("Found base image:", base_ami["Name"])
 
     key_name = "ami-bootstrap"
     ec2("delete-key-pair", "--key-name", key_name)
@@ -77,25 +89,32 @@ def main(tmp):
     assert len(result["Instances"]) == 1
     instance_id = result["Instances"][0]["InstanceId"]
 
-    print("Waiting for password data to be available…")
     ec2_wait("password-data-available", "--instance-id", instance_id)
-    result = ec2("get-password-data", "--instance-id", instance_id,
-                 "--priv-launch-key", key_filename)
-    print("Administrator password:", result["PasswordData"])
+    password_result = ec2("get-password-data", "--instance-id", instance_id,
+                          "--priv-launch-key", key_filename)
 
-    print("Waiting for the instance to finish executing first-boot.ps1 and shut down…")
+    log("Waiting for the instance to finish `first-boot.ps1` and shut down…")
     ec2_wait("instance-stopped", "--instance-id", instance_id)
 
     image_id = ec2("create-image", "--instance-id", instance_id,
                    "--name", "TC bootstrap")["ImageId"]
-    print("Started creating image with ID %s …" % image_id)
 
+    set_sercret(image_id, {"Administrator": password_result["PasswordData"]})
+    log("Password available at https://community-tc.services.mozilla.com/secrets/"
+        "project%2Fservo%2Fwindows-administrator%2F" + image_id)
+
+    log("Creating image with ID %s …" % image_id)
     ec2_wait("image-available", "--image-ids", image_id)
     ec2("modify-image-attribute", "--image-id", image_id,
         "--launch-permission", "Add=[{UserId=%s}]" % TASKCLUSTER_AWS_USER_ID)
 
-    print("Image available. Terminating the temporary instance…")
+    log("Image available.")
     ec2("terminate-instances", "--instance-ids", instance_id)
+
+
+def log(*args):
+    now = datetime.datetime.now().replace(microsecond=0)
+    print(now.isoformat(sep=" "), *args)
 
 
 def ec2_wait(*args):
