@@ -1,7 +1,8 @@
-import os
-import json
 import datetime
+import json
+import os
 import subprocess
+import tempfile
 
 
 # Amazon provides an ovewhelming number of different Windows images,
@@ -46,15 +47,16 @@ WORKER_TYPE = "servo-win2016"
 TASKCLUSTER_AWS_USER_ID = "885316786408"
 
 
-def main():
+def main(tmp):
     base_ami = most_recent_ami(BASE_AMI_PATTERN)
     print("Starting an instance with base image:", base_ami["ImageId"], base_ami["Name"])
 
-    key_name = "%s_%s" % (WORKER_TYPE, REGION)
-    key_filename = key_name + ".id_rsa"
+    key_name = "ami-bootstrap"
     ec2("delete-key-pair", "--key-name", key_name)
     result = ec2("create-key-pair", "--key-name", key_name)
-    write_file(key_filename, result["KeyMaterial"].encode("utf-8"))
+    key_filename = os.path.join(tmp, "key")
+    with open(key_filename, "w") as f:
+        f.write(result["KeyMaterial"])
 
     user_data = b"<powershell>\n%s\n</powershell>" % read_file("first-boot.ps1")
     result = ec2(
@@ -75,7 +77,7 @@ def main():
     print("Waiting for password data to be available…")
     ec2_wait("password-data-available", "--instance-id", instance_id)
     result = ec2("get-password-data", "--instance-id", instance_id,
-                 "--priv-launch-key", here(key_filename))
+                 "--priv-launch-key", key_filename)
     print("Administrator password:", result["PasswordData"])
 
     print("Waiting for the instance to finish executing first-boot.ps1 and shut down…")
@@ -133,14 +135,10 @@ def read_file(filename):
         return f.read()
 
 
-def write_file(filename, contents):
-    with open(here(filename), "wb") as f:
-        f.write(contents)
-
-
 def here(filename):
     return os.path.join(os.path.dirname(__file__), "..", "windows", filename)
 
 
 if __name__ == "__main__":
-    main()
+    with tempfile.TemporaryDirectory() as tmp:
+        main(tmp)
