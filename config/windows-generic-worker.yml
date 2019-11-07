@@ -1,4 +1,4 @@
-checkForNewDeploymentEverySecs: 600
+checkForNewDeploymentEverySecs: 120
 idleTimeoutSecs: 14400
 shutdownMachineOnIdle: True
 workerTypeMetadata: {}
