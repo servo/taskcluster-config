@@ -1,10 +1,15 @@
 import datetime
 import json
 import os
+import re
 import subprocess
+import sys
 import tempfile
+import time
 
+import jsone
 import taskcluster
+import tc
 
 
 # Amazon provides an ovewhelming number of different Windows images,
@@ -48,9 +53,16 @@ REGION = "us-west-2"
 TASKCLUSTER_AWS_USER_ID = "885316786408"
 
 
-def main(tmp):
-    options = taskcluster.optionsFromEnvironment()
-    secrets = taskcluster.Secrets(options)
+def main(image_id=None):
+    tc_options = taskcluster.optionsFromEnvironment()
+    if not image_id:
+        with tempfile.TemporaryDirectory() as tmp:
+            image_id = new_ami(tmp, tc_options)
+    try_ami(image_id, tc_options)
+
+
+def new_ami(tmp, tc_options):
+    secrets = taskcluster.Secrets(tc_options)
     def set_sercret(name, value):
         payload = {"secret": value, "expires": datetime.datetime(3000, 1, 1, 0, 0, 0)}
         secrets.set("project/servo/windows-administrator/" + name, payload)
@@ -110,6 +122,7 @@ def main(tmp):
 
     log("Image available.")
     ec2("terminate-instances", "--instance-ids", instance_id)
+    return image_id
 
 
 def log(*args):
@@ -136,6 +149,59 @@ def ec2(*args):
         return json.loads(output)
 
 
+def try_ami(ami_id, tc_options):
+    pool = tc.parse_yaml("worker-pools.yml")["win2016"]
+    pool.pop("kind")
+    pool = tc.aws_windows(**pool)
+    pool = dict(description="", emailOnError=False, owner="nobody@mozilla.com", **pool)
+
+    now = datetime.datetime.now().replace(microsecond=0).isoformat()
+    worker_type = "tmp-" + re.sub("[-:T]", "", now)
+    pool_id = "proj-servo/" + worker_type
+
+    task = {h["hookId"]: h for h in tc.parse_yaml("hooks.yml")}["daily"]["task"]
+    task["metadata"]["name"] = "Trying new Windows image " + ami_id
+    task["metadata"]["source"] = \
+        "https://github.com/servo/taskcluster-config/blob/master/commands/try-ami.py"
+    task["payload"]["env"]["SOURCE"] = task["metadata"]["source"]
+    task["payload"]["env"]["TASK_FOR"] = "try-windows-ami"
+    task["payload"]["env"]["GIT_REF"] = "refs/heads/try-windows-ami"
+    task["payload"]["env"]["NEW_AMI_WORKER_TYPE"] = worker_type
+    task["created"] = {"$eval": "now"}
+    task = jsone.render(task, {})
+    task_id = taskcluster.slugId()
+
+    wm = taskcluster.WorkerManager(tc_options)
+    queue = taskcluster.Queue(tc_options)
+    wm.createWorkerPool(pool_id, pool)
+    try:
+        queue.createTask(task_id, task)
+        task_view = "https://community-tc.services.mozilla.com/tasks/"
+        log("Created " + task_view + task_id)
+        while 1:
+            time.sleep(2)
+            result = queue.status(task_id)
+            state = result["status"]["state"]
+            if state not in ["unscheduled", "pending", "running"]:
+                log("Decision task:", state)
+                break
+
+        # The decision task has finished, so any other task should be scheduled now
+        while 1:
+            tasks = []
+            def handler(result):
+                for task in result["tasks"]:
+                    if task["status"]["taskId"] != task_id:
+                        tasks.append((task["status"]["taskId"], task["status"]["state"]))
+            queue.listTaskGroup(result["status"]["taskGroupId"], paginationHandler=handler)
+            if all(state not in ["unscheduled", "pending"] for _, state in tasks):
+                for task, _ in tasks:
+                    log("Running " + task_view + task)
+                break
+            time.sleep(2)
+    finally:
+        wm.deleteWorkerPool(pool_id)
+
+
 if __name__ == "__main__":
-    with tempfile.TemporaryDirectory() as tmp:
-        main(tmp)
+    sys.exit(main(*sys.argv[1:]))
