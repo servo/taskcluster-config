@@ -108,8 +108,9 @@ def new_ami(tmp, tc_options):
     log("Waiting for the instance to finish `first-boot.ps1` and shut down…")
     ec2_wait("instance-stopped", "--instance-id", instance_id)
 
+    now = datetime.datetime.utcnow().strftime("%Y-%m-%d_%H.%M.%S")
     image_id = ec2("create-image", "--instance-id", instance_id,
-                   "--name", "TC bootstrap")["ImageId"]
+                   "--name", "win2016 bootstrap " + now)["ImageId"]
 
     set_sercret(image_id, {"Administrator": password_result["PasswordData"]})
     log("Password available at https://community-tc.services.mozilla.com/secrets/"
