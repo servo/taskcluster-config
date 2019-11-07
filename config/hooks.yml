@@ -6,8 +6,8 @@
     Scopes at `hook-id:project-servo/daily`.
   owner: servo-ops@mozilla.com
   emailOnError: true
-  schedule: []
-  #  - 7 13 10 * * *
+  schedule:
+    - 7 13 10 * * *
   bindings: []
   triggerSchema: {}
   task:
