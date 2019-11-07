@@ -21,6 +21,9 @@ def main(worker_pool):
         print(w["created"], w["workerId"], w["state"])
     print("… and %s stopped" % stopped)
 
+    if not workers:
+        return
+
     result = input("Remove all? [y/n, or ID] ").strip()
     for w in workers:
         if result == w["workerId"]:
