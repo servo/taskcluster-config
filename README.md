@@ -119,6 +119,7 @@ this tool requires the
 configured with credentials to some AWS account that will be use for the temporary instance
 and then storage of the new AMI.
 
+
 ## Instructions
 
 First, make your changes to `commands/new-ami.py` or `windows/first-boot.ps1`.
@@ -127,18 +128,21 @@ First, make your changes to `commands/new-ami.py` or `windows/first-boot.ps1`.
 double-check whether the base name of the file has changed
 to make sure that the URL as a whole is valid.
 
-Run `./mach new-ami`. This can take at least half an hour to complete.
-The `Waiter […] Max attempts exceeded` messages are safe to ignore.
+Run `./mach new-ami`.
+This can take at least half an hour to complete.
+The output includes:
 
-The tool eventually prints a newly-generated password for the `Administrator` Windows user,
-and an image ID.
-Save them together in Servo’s shared 1Password account, in the *Taskcluster Windows AMIs* note.
-The password can be used to remotely log in with RDP into instances running this image.
-This is usally not necessary,
-but can be useful for example to read `generic-worker`’s log file
-when an instance is running without picking up tasks.
-
-**FIXME**: instructions for testing an AMI on -staging, and updating worker pool definitions.
+* Possibly some `Waiter […] Max attempts exceeded` messages. They are safe to ignore.
+* A `Password available` line with the URL of an entry in Taskcluster’s Secrets service.
+  That entry contains the password for Windows user `Administrator` in the new image.
+  That password can be use for remote login through RDP,
+  which is usually not necessary but can be useful for example
+  to read `generic-worker`’s log file if an instance is running without picking up tasks.
+* A `Creating image` line with the image’s identifier.
+  Copy this identifier into `config/worker-pools.yml`
+  and use the `./mach tc` tool (see above) to deploy the new image.
+* A `Running` line with the URL of a task testing the new image.
+  Check that this task is running as expected before deploying an image.
 
 
 ## `./mach salt`: system configuration of macOS workers
