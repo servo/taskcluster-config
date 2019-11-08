@@ -7,6 +7,20 @@ win2016:
     capacity_per_instance_type:
         c5.xlarge: 1
 
+macos:
+    kind: static
+    worker_hostname_template: servo-tc-{id}.servo.org
+    workers:
+        - mac1
+        - mac2
+        - mac3
+        - mac4
+        - mac5
+        - mac6
+        - mac7
+        - mac8
+        - mac9
+
 # These are managed in
 # https://github.com/mozilla/community-tc-config/blob/master/config/projects.yml
 docker:

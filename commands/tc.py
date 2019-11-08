@@ -21,6 +21,8 @@ async def register_worker_pools(resources):
         kind = config.pop("kind")
         if kind == "externally-managed":
             externally_managed.append(name)
+        elif kind == "static":
+            pass
         else:
             builder = {
                 "aws_windows": aws_windows,

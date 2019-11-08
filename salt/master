@@ -5,6 +5,7 @@ file_roots:
 extension_modules: ..
 ext_pillar:
   - external_data:
+roster: custom
 roster_defaults:
     # https://github.com/saltstack/salt/issues/50477
     minion_opts:
