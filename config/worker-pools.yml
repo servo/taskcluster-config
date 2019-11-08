@@ -11,15 +11,17 @@ macos:
     kind: static
     worker_hostname_template: servo-tc-{id}.servo.org
     workers:
-        - mac1
-        - mac2
-        - mac3
-        - mac4
-        - mac5
-        - mac6
-        - mac7
-        - mac8
-        - mac9
+        # Use `macFOO: disabled` to stop a worker from picking up tasks
+        # https://github.com/servo/servo/issues/24691
+        mac1: disabled
+        mac2:
+        mac3:
+        mac4:
+        mac5:
+        mac6:
+        mac7:
+        mac8: disabled
+        mac9: disabled
 
 # These are managed in
 # https://github.com/mozilla/community-tc-config/blob/master/config/projects.yml

@@ -3,9 +3,6 @@
 {% set user = "worker" %}
 {% set home = "/Users/" + user %}
 
-# https://github.com/servo/servo/issues/24691
-{% set disabled = ["mac1", "mac8", "mac9"] %}
-
 GMT:
   timezone.system
 
@@ -68,7 +65,7 @@ sshkeys:
     - formatter: json
     - dataset:
         provisionerId: proj-servo
-        workerType: macos{{ "-disabled" if grains["id"] in disabled else "" }}
+        workerType: macos{{ "-disabled" if pillar["disabled"] else "" }}
         workerGroup: proj-servo
         workerId: {{ grains["id"] }}
         tasksDir: {{ home }}/tasks
