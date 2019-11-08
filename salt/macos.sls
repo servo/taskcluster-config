@@ -74,8 +74,8 @@ sshkeys:
         tasksDir: {{ home }}/tasks
         publicIP: {{ salt.network.ip_addrs()[0] }}
         ed25519SigningKeyLocation: {{ home }}/keypair
-        clientId: {{ pillar["client_id"] }}
-        accessToken: {{ pillar["access_token"] }}
+        clientId: {{ pillar["credentials"]["client_id"] }}
+        accessToken: {{ pillar["credentials"]["access_token"] }}
         taskclusterProxyExecutable: {{ bin }}/taskcluster-proxy
         taskclusterProxyPort: 8080
         livelogExecutable: {{ bin }}/livelog
