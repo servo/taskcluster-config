@@ -122,7 +122,7 @@ and then storage of the new AMI.
 
 ## Instructions
 
-First, make your changes to `commands/new-ami.py` or `windows/first-boot.ps1`.
+First, make your changes to `commands/new-ami.py` or `config/windows-first-boot.ps1`.
 
 **Note**: when incrementing the version number in some download URL,
 double-check whether the base name of the file has changed

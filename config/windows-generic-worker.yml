@@ -3,7 +3,7 @@ idleTimeoutSecs: 14400
 shutdownMachineOnIdle: True
 workerTypeMetadata: {}
 
-# These need to match ../windows/first-boot.ps1
+# These need to match windows-first-boot.ps1
 ed25519SigningKeyLocation: C:\generic-worker\generic-worker-ed25519-signing-key.key
 taskclusterProxyExecutable: C:\generic-worker\taskcluster-proxy.exe
 livelogExecutable: C:\generic-worker\livelog.exe

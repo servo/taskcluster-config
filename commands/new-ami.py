@@ -86,7 +86,7 @@ def new_ami(tmp, tc_options):
     with open(key_filename, "w") as f:
         f.write(result["KeyMaterial"])
 
-    ps1 = os.path.join(os.path.dirname(__file__), "..", "config", "first-boot.ps1")
+    ps1 = os.path.join(os.path.dirname(__file__), "..", "config", "windows-first-boot.ps1")
     with open(ps1) as f:
         user_data = "<powershell>\n%s\n</powershell>" % f.read()
     result = ec2(
