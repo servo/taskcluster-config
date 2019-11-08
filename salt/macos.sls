@@ -17,8 +17,8 @@ sshkeys:
 {{ bin }}/generic-worker:
   file.managed:
     - name:
-    - source: https://github.com/taskcluster/generic-worker/releases/download/v14.1.1/generic-worker-nativeEngine-darwin-amd64
-    - source_hash: sha256=817e72972a7c077f1a829d5824e5c0e831eb6f9b254672e7427246a8dd476a59
+    - source: https://github.com/taskcluster/generic-worker/releases/download/v16.5.5/generic-worker-simple-darwin-amd64
+    - source_hash: sha256=d67093e9edd6aa6d868562c761a8e8497a280b1be4ee7a881906f342857ed6d7
     - mode: 755
     - makedirs: True
     - watch_in:
