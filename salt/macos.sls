@@ -10,7 +10,7 @@ sshkeys:
   ssh_auth.present:
     - user: root
     - names:
-    {% for key in pillar["ssh_keys"] %}
+    {% for key in pillar.ssh_keys %}
       - {{ key | yaml_encode }}
     {% endfor %}
 
@@ -65,14 +65,14 @@ sshkeys:
     - formatter: json
     - dataset:
         provisionerId: proj-servo
-        workerType: macos{{ "-disabled" if pillar["disabled"] else "" }}
+        workerType: macos{{ "-disabled" if pillar.disabled else "" }}
         workerGroup: proj-servo
-        workerId: {{ grains["id"] }}
+        workerId: {{ grains.id }}
         tasksDir: {{ home }}/tasks
         publicIP: {{ salt.network.ip_addrs()[0] }}
         ed25519SigningKeyLocation: {{ home }}/keypair
-        clientId: {{ pillar["credentials"]["client_id"] }}
-        accessToken: {{ pillar["credentials"]["access_token"] }}
+        clientId: {{ pillar.credentials.client_id }}
+        accessToken: {{ pillar.credentials.access_token }}
         taskclusterProxyExecutable: {{ bin }}/taskcluster-proxy
         taskclusterProxyPort: 8080
         livelogExecutable: {{ bin }}/livelog
