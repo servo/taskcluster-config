@@ -54,7 +54,7 @@ You should already have an understanding of the resources you would like to modi
 See the [Taskcluster Documentation](https://community-tc.services.mozilla.com/docs)
 or consult with the Servo team or the Taskcluster team if you need assistance.
 
-First, run:
+First make sure your branch is up to date with `origin/master` and run:
 
 ```
 ./mach tc diff
@@ -65,6 +65,10 @@ First, run:
 This will show you the current difference between what’s defined in your local repository
 and the runtime configuration of the deployment.
 Most of the time, there should be no difference.
+
+If there are differences,
+look at [open pull requests](https://github.com/servo/taskcluster-config/pulls)
+for changes that might be already deployed but not merged yet.
 
 Next, make your changes to `config/*.yml` or `commands/tc.py`.
 Examine the results by running `./mach tc diff` again.
@@ -77,13 +81,21 @@ Once the configuration diff looks good, submit a pull request with your changes.
 
 ### Deploying changes
 
-Check again that the configuration diff looks good:
+Check the configuration diff again:
 
 ```
 ./mach tc diff
 ```
 
-Then, deploy them in a terminal that has [administrative Taskcluster credentials](
+**If you see unexpected diff entries, stop.**
+Deploying now would revert changes unrelated to yours, which might break something.
+Check again that your branch is up to date with `origin/master`.
+Check [open pull requests](https://github.com/servo/taskcluster-config/pulls)
+for changes that might already be applied but not merged yet.
+Coordinate with rest of the Servo team to figure out what to do about those unrelated changes.
+
+When everything looks good,
+deploy your changes in a terminal that has [administrative Taskcluster credentials](
 #obtaining-administrative-Taskcluster-credentials):
 
 ```
