@@ -51,7 +51,7 @@
     * Treeherder access only to the dedicated tree, servo-prs
   scopes:
     - assume:project:servo:decision-task/base
-    - queue:create-task:medium:proj-servo/docker-untrusted
+    - queue:create-task:medium:proj-servo/servo-docker-untrusted
     - queue:route:tc-treeherder-staging.v2._/servo-prs.*
     - queue:route:tc-treeherder.v2._/servo-prs.*
 
