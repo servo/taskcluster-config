@@ -21,6 +21,22 @@ The commands below will automatically create a virtual environment
 and install Python dependencies in it.
 
 
+## Obtaining administrative Taskcluster credentials
+
+Most (but not all) commands described below require running in a terminal where this has been done.
+
+```sh
+eval `mach creds`
+```
+
+This command should open a new browser tab.
+If that page says “Sign in to create a client”,
+click the “Sign in” button on the top right then “Sign in with GitHub”.
+Click on the save / floppy disk icon on the bottom right.
+
+This exports environment variables that other commands rely on.
+
+
 ## `./mach tc`: Taskcluster [roles], [clients], [worker pools], and [hooks]
 
 [roles]: https://community-tc.services.mozilla.com/docs/manual/design/apis/hawk/roles
@@ -254,25 +270,3 @@ Any task currently running on those workers will fail.
 ```
 ./mach kill-workers win2016-staging
 ```
-
-
-## Obtaining administrative Taskcluster credentials
-
-* Navigate to https://community-tc.services.mozilla.com/profile
-* If not already signed in, click the “Sign in” button on the top right, then “Sign in with GitHub”
-* Take note of your browsing session’s client ID. It should look like `github/291359|SimonSapin`
-* Check that `assume:project-admin:servo` is listed under “Scopes”
-* Navigate to https://community-tc.services.mozilla.com/auth/clients/create
-* Pick an ID for the new client that starts with yours, followed by `/` and some identifier.
-  For example, `github/291359|SimonSapin/cli`.
-* Pick an appropriate expiration date.
-* Copy-paste `assume:project-admin:servo` into the scopes given to this new client.
-* Create the client with the “Save” icon at the bottom right.
-* In your terminal, set environment variables with the chosen ID
-  and the token that shows up (only once!) after creating the client.
-  For example:
-
-  ```sh
-  export TASKCLUSTER_CLIENT_ID="github/291359|SimonSapin/cli"
-  export TASKCLUSTER_ACCESS_TOKEN="xxxxxx-yyyyyy-zzzzzz"
-  ```
