@@ -106,3 +106,19 @@ net.generic.worker:
     - enable: True
     - watch:
       - file: /Library/LaunchDaemons/net.generic.worker.plist
+
+/usr/local:
+  file.directory:
+    - user: {{ user }}
+    - mode: 755
+
+Homebrew:
+  cmd.run:
+    - runas: {{ user }}
+    - creates: /usr/local/bin/brew
+    - require:
+        - /usr/local
+    - name: >-
+        curl -L https://github.com/Homebrew/brew/tarball/master |
+            tar xz --strip 1 -C /usr/local &&
+        brew update
