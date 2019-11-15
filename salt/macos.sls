@@ -1,4 +1,4 @@
-{% set bin = "/usr/local/bin" %}
+{% set bin = "/opt/local/bin" %}
 {% set etc = "/etc/generic-worker" %}
 {% set user = "worker" %}
 {% set home = "/Users/" + user %}
