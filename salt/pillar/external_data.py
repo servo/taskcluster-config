@@ -19,11 +19,16 @@ def ext_pillar(minion_id, _pillar, *_args):
             "simonsapin",
         ]]
 
-        CACHE["workers"] = read_yaml("worker-pools.yml")["macos"]["workers"]
+        CACHE["workers"] = {
+            worker: (pool_name, config)
+            for pool_name, pool in read_yaml("worker-pools.yml").items()
+            if pool["kind"] == "static"
+            for worker, config in pool["workers"].items()
+        }
 
-    worker = CACHE["workers"][minion_id]
-    disabled = {"disabled": True, None: False}[worker]
-    return dict(disabled=disabled, **CACHE)
+    pool_name, config = CACHE["workers"][minion_id]
+    disabled = {"disabled": True, None: False}[config]
+    return dict(disabled=disabled, worker_type=pool_name, **CACHE)
 
 
 def read_yaml(filename):

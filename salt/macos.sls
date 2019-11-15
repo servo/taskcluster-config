@@ -65,7 +65,7 @@ sshkeys:
     - formatter: json
     - dataset:
         provisionerId: proj-servo
-        workerType: {{ "macos-disabled-" + grains.id if pillar.disabled else "macos" }}
+        workerType: {{ pillar.worker_type }}{{ "-disabled-" + grains.id if pillar.disabled else "" }}
         workerGroup: proj-servo
         workerId: {{ grains.id }}
         tasksDir: {{ home }}/tasks
