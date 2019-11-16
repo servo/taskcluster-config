@@ -14,6 +14,14 @@ sshkeys:
       - {{ key | yaml_encode }}
     {% endfor %}
 
+/etc/sysctl.conf:
+  file.managed:
+    - source: salt://{{ tpldir }}/etc/sysctl.conf
+
+/etc/profile:
+  file.managed:
+    - source: salt://{{ tpldir }}/etc/profile
+
 {{ bin }}/generic-worker:
   file.managed:
     - name:
