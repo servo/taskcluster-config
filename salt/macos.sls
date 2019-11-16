@@ -121,11 +121,5 @@ Homebrew:
     - name: >-
         curl -L https://github.com/Homebrew/brew/tarball/master |
             tar xz --strip 1 -C /usr/local &&
-        brew update
-
-brew analytics off:
-  cmd.run:
-    - runas: {{ user }}
-    - onlyif: brew analytics state | grep enabled
-    - requires:
-      - Homebrew
+        brew update &&
+        brew analytics off
