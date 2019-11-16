@@ -2,6 +2,7 @@
 {% set etc = "/etc/generic-worker" %}
 {% set user = "worker" %}
 {% set home = "/Users/" + user %}
+{% set git_repo_cache = "/var/cache/servo.git" %}
 
 GMT:
   timezone.system
@@ -114,6 +115,23 @@ net.generic.worker:
     - enable: True
     - watch:
       - file: /Library/LaunchDaemons/net.generic.worker.plist
+
+{{ git_repo_cache }}:
+  cmd.run:
+    - creates: {{ git_repo_cache }}
+    - name: >-
+        mkdir -p /var/cache &&
+        git init --bare {{ git_repo_cache }}"
+
+cron_git_fetch:
+  cron.present:
+    - identifier: cron git fetch
+    - minute: 12
+    - hour: 8
+    - name: >-
+        cd {{ git_repo_cache }} &&
+        git fetch --no-tags https://github.com/servo/servo master:master &&
+        touch cron-fetch-stamp
 
 /usr/local:
   file.directory:
