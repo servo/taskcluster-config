@@ -15,7 +15,7 @@ macos:
         # https://github.com/servo/servo/issues/24691
         mac1: disabled
         mac2:
-        mac3:
+        mac3: disabled
         mac4:
         mac5:
         mac6:
