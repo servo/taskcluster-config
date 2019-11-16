@@ -3,10 +3,15 @@ import yaml
 
 
 def roster():
+    workers = {}
     pools = os.path.join(os.path.dirname(__file__), "..", "..", "config", "worker-pools.yml")
-    pool = yaml.safe_load(open(pools))["macos"]
-    hostname = pool["worker_hostname_template"]
-    return {w: hostname.format(id=w) for w in pool["workers"]}
+    for name, pool in yaml.safe_load(open(pools)).items():
+        if pool["kind"] == "static":
+            hostname = pool["worker_hostname_template"]
+            for w in pool["workers"]:
+                assert w not in workers
+                workers[w] = hostname.format(id=w)
+    return workers
 
 
 # Custom roster modules are unfortunately not documented.

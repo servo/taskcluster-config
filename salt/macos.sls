@@ -1,4 +1,4 @@
-{% set bin = "/usr/local/bin" %}
+{% set bin = "/opt/local/bin" %}
 {% set etc = "/etc/generic-worker" %}
 {% set user = "worker" %}
 {% set home = "/Users/" + user %}
@@ -65,7 +65,7 @@ sshkeys:
     - formatter: json
     - dataset:
         provisionerId: proj-servo
-        workerType: {{ "macos-disabled-" + grains.id if pillar.disabled else "macos" }}
+        workerType: {{ pillar.worker_type }}{{ "-disabled-" + grains.id if pillar.disabled else "" }}
         workerGroup: proj-servo
         workerId: {{ grains.id }}
         tasksDir: {{ home }}/tasks
@@ -106,3 +106,19 @@ net.generic.worker:
     - enable: True
     - watch:
       - file: /Library/LaunchDaemons/net.generic.worker.plist
+
+/usr/local:
+  file.directory:
+    - user: {{ user }}
+    - mode: 755
+
+Homebrew:
+  cmd.run:
+    - runas: {{ user }}
+    - creates: /usr/local/bin/brew
+    - require:
+        - /usr/local
+    - name: >-
+        curl -L https://github.com/Homebrew/brew/tarball/master |
+            tar xz --strip 1 -C /usr/local &&
+        brew update
