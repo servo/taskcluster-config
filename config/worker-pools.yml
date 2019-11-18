@@ -13,7 +13,7 @@ macos:
     workers:
         # Use `macFOO: disabled` to stop a worker from picking up tasks
         # https://github.com/servo/servo/issues/24691
-        mac1: disabled
+        mac1:
         mac2:
         mac3:
         mac4:
@@ -21,7 +21,7 @@ macos:
         mac6:
         mac7:
         mac8: disabled
-        mac9: disabled
+        mac9:
 
 macos-i3:
     kind: static
