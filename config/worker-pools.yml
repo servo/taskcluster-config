@@ -23,18 +23,6 @@ macos:
         mac8: disabled
         mac9:
 
-macos-i3:
-    kind: static
-    worker_hostname_template: servo-{id}.servo.org
-    workers:
-        mac-i3:
-
-macos-i7:
-    kind: static
-    worker_hostname_template: servo-{id}.servo.org
-    workers:
-        mac-i7:
-
 # These are managed in
 # https://github.com/mozilla/community-tc-config/blob/master/config/projects.yml
 docker:
