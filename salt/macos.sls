@@ -30,8 +30,6 @@ sshkeys:
     - source_hash: sha256=d67093e9edd6aa6d868562c761a8e8497a280b1be4ee7a881906f342857ed6d7
     - mode: 755
     - makedirs: True
-    - watch_in:
-      - service: net.generic.worker
 
 {{ bin }}/livelog:
   file.managed:
@@ -39,8 +37,6 @@ sshkeys:
     - source_hash: sha256=be5d4b998b208afd802ac6ce6c4d4bbf0fb3816bb039a300626abbc999dfe163
     - mode: 755
     - makedirs: True
-    - watch_in:
-      - service: net.generic.worker
 
 {{ bin }}/taskcluster-proxy:
   file.managed:
@@ -48,8 +44,6 @@ sshkeys:
     - source_hash: sha256=3faf524b9c6b9611339510797bf1013d4274e9f03e7c4bd47e9ab5ec8813d3ae
     - mode: 755
     - makedirs: True
-    - watch_in:
-      - service: net.generic.worker
 
 {{ user }} group:
   group.present:
@@ -88,8 +82,6 @@ sshkeys:
         wstAudience: communitytc
         wstServerURL: https://community-websocktunnel.services.mozilla.com
         rootURL: https://community-tc.services.mozilla.com
-    - watch_in:
-      - service: net.generic.worker
 
 {{ bin }}/generic-worker new-ed25519-keypair --file {{ home }}/keypair:
   cmd.run:
@@ -115,6 +107,18 @@ net.generic.worker:
     - enable: True
     - watch:
       - file: /Library/LaunchDaemons/net.generic.worker.plist
+
+# generic-worker responds to an 'interrupt' signal by gracefully exiting
+# after the currently-running task is resolved, if any
+pkill -INT generic-worker:
+  cmd.wait:
+    - require:
+      - net.generic.worker
+    - watch:
+      - file: {{ bin }}/generic-worker
+      - file: {{ bin }}/livelog
+      - file: {{ bin }}/taskcluster-proxy
+      - file: {{ etc }}/config.json
 
 {{ git_repo_cache }}:
   cmd.run:
