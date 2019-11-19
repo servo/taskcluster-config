@@ -63,13 +63,13 @@ def main(image_id=None):
 
 def new_ami(tmp, tc_options):
     secrets = taskcluster.Secrets(tc_options)
-    def set_sercret(name, value):
+    def set_secret(name, value):
         payload = {"secret": value, "expires": datetime.datetime(3000, 1, 1, 0, 0, 0)}
         secrets.set("project/servo/windows-administrator/" + name, payload)
 
     # Ensure we have appropriate credentials for writing secrets now
     # rather than at the end of the lengthy bootstrap process.
-    set_sercret("dummy", {})
+    set_secret("dummy", {})
 
     result = ec2(
         "describe-images", "--owners", "amazon",
@@ -112,7 +112,7 @@ def new_ami(tmp, tc_options):
     image_id = ec2("create-image", "--instance-id", instance_id,
                    "--name", "win2016 bootstrap " + now)["ImageId"]
 
-    set_sercret(image_id, {"Administrator": password_result["PasswordData"]})
+    set_secret(image_id, {"Administrator": password_result["PasswordData"]})
     log("Password available at https://community-tc.services.mozilla.com/secrets/"
         "project%2Fservo%2Fwindows-administrator%2F" + image_id)
 
