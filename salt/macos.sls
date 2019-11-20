@@ -125,7 +125,7 @@ pkill -INT generic-worker:
     - creates: {{ git_repo_cache }}
     - name: >-
         mkdir -p /var/cache &&
-        git init --bare {{ git_repo_cache }}"
+        git init --bare {{ git_repo_cache }}
 
 cron_git_fetch:
   cron.present:
