@@ -35,18 +35,26 @@ async def register_worker_pools(resources):
                 **builder(**config)
             ))
 
-    externally_managed = "|".join(map(re.escape, externally_managed))
-    resources.manage("WorkerPool=proj-servo/(?!(%s)$).*" % externally_managed)
+    resources.manage("WorkerPool=proj-servo/%s.*" % re_not_match(externally_managed))
     resources.update(pools)
 
 
 @appconfig.generators.register
 async def register_roles(resources):
-    resources.manage("Role=repo:github.com/servo/servo:.*")
-    resources.manage("Role=hook-id:project-servo/.*")
-    resources.manage("Role=project:servo:.*")
+    externally_managed = []
+    roles = []
     for config in parse_yaml("roles.yml"):
-        resources.add(Role(**config))
+        if "externally-managed" in config:
+            externally_managed.append(config["roleId"])
+        else:
+            roles.append(Role(**config))
+
+    role_re_prefix = "Role=" + re_not_match(externally_managed)
+    resources.manage(role_re_prefix + "repo:github.com/servo/servo:.*")
+    resources.manage(role_re_prefix + "hook-id:project-servo/.*")
+    resources.manage(role_re_prefix + "project:servo:.*")
+    for role in roles:
+        resources.add(role)
 
 
 @appconfig.generators.register
@@ -65,6 +73,10 @@ async def register_hooks(resources):
 
 def parse_yaml(filename):
     return yaml.safe_load(open(os.path.join(os.path.dirname(__file__), "..", "config", filename)))
+
+
+def re_not_match(values):
+    return "(?!(%s)$)" % "|".join(map(re.escape, values))
 
 
 # Based on https://github.com/mozilla/community-tc-config/blob/master/generate/workers.py
