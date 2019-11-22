@@ -67,3 +67,6 @@
     - secrets:get:project/servo/s3-upload
     - secrets:get:project/servo/s3-upload-credentials
     - secrets:get:project/servo/wpt-sync
+
+- roleId: repo:github.com/servo/servo:*
+  externally-managed:
