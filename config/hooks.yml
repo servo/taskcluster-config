@@ -7,7 +7,7 @@
   owner: servo-ops@mozilla.com
   emailOnError: true
   schedule:
-    - 7 13 10 * * *
+    - 7 13 8 * * *
   bindings: []
   triggerSchema: {}
   task:
@@ -33,6 +33,11 @@
         @sha256:7471a998e4462638c8d3e2cf0b4a99c9a5c8ca9f2ec0ae01cc069473b35cde10"
       features:
         taskclusterProxy: true
+      artifacts:
+        public/repo.bundle:
+          type: file
+          path: /repo.bundle
+          expires: {$fromNow: '1 day'}
       command:
         - /bin/bash
         - "--login"
@@ -47,6 +52,7 @@
       env:
         GIT_URL: https://github.com/servo/servo.git
         GIT_REF: refs/heads/master
+        GIT_SHA: HEAD
         TASK_FOR: daily
         TASK_OWNER: servo-ops@mozilla.com
         TASK_SOURCE: https://github.com/servo/taskcluster-config/blob/master/config/hooks.yml
