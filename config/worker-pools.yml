@@ -20,7 +20,7 @@ macos:
         mac5:
         mac6:
         mac7:
-        mac8: disabled
+        mac8:
         mac9:
 
 # These are managed in
