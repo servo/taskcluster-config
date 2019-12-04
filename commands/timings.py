@@ -7,6 +7,8 @@ def main(*task_group_ids):
     for task_group_id in task_group_ids:
         print("https://community-tc.services.mozilla.com/tasks/groups/" + task_group_id)
         timings = {}
+        starts = []
+        ends = []
         def handler(result):
             for task in result["tasks"]:
                 name = task["task"]["metadata"]["name"]
@@ -19,15 +21,17 @@ def main(*task_group_ids):
                     if "WPT" in name:
                         key += " WPT"
                     # fromisoformat doesn’t like the "Z" timezone, [:-1] to remove it
-                    timings.setdefault(key, []).append(
-                        datetime.datetime.fromisoformat(resolved[:-1]) -
-                        datetime.datetime.fromisoformat(run["started"][:-1])
-                    )
+                    start = datetime.datetime.fromisoformat(run["started"][:-1])
+                    end = datetime.datetime.fromisoformat(resolved[:-1])
+                    starts.append(start)
+                    ends.append(end)
+                    timings.setdefault(key, []).append(end - start)
 
         queue = taskcluster.Queue(taskcluster.optionsFromEnvironment())
         queue.listTaskGroup(task_group_id, paginationHandler=handler)
 
         r = lambda d: datetime.timedelta(seconds=round(d.total_seconds()))
+        print("Start to finish ", r(max(ends) - min(starts)))
         for worker_type, t in sorted(timings.items()):
             print("count {}, total {}, max: {}\t{}\t{}".format(
                 len(t),
