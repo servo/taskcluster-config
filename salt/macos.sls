@@ -17,11 +17,11 @@ sshkeys:
 
 /etc/sysctl.conf:
   file.managed:
-    - source: salt://{{ tpldir }}/etc/sysctl.conf
+    - source: salt://{{ tpldir }}/files/sysctl.conf
 
 /etc/profile:
   file.managed:
-    - source: salt://{{ tpldir }}/etc/profile
+    - source: salt://{{ tpldir }}/files/profile
 
 {{ bin }}/generic-worker:
   file.managed:
