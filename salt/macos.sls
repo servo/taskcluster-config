@@ -23,6 +23,11 @@ sshkeys:
   file.managed:
     - source: salt://{{ tpldir }}/files/profile
 
+{{ bin }}/zombicide:
+  file.managed:
+    - source: salt://{{ tpldir }}/files/zombicide.py
+    - mode: 755
+
 {{ bin }}/generic-worker:
   file.managed:
     - name:
