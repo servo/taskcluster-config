@@ -166,7 +166,7 @@ def try_ami(ami_id, tc_options):
         "https://github.com/servo/taskcluster-config/blob/master/commands/try-ami.py"
     task["payload"]["env"]["SOURCE"] = task["metadata"]["source"]
     task["payload"]["env"]["TASK_FOR"] = "try-windows-ami"
-    task["payload"]["env"]["GIT_REF"] = "refs/heads/try-windows-ami"
+    task["payload"]["env"]["GIT_REF"] = "refs/heads/master"
     task["payload"]["env"]["NEW_AMI_WORKER_TYPE"] = worker_type
     task["created"] = {"$eval": "now"}
     task = jsone.render(task, {})
