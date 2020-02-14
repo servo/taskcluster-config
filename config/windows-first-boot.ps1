@@ -85,6 +85,13 @@ Start-Process C:\vs_buildtools.exe -ArgumentList (`
         "--add Microsoft.VisualStudio.Component.VC.MFC.ARM64"
     ) -Wait
 
+# Install the root certificate used for signing our UWP builds.
+# Having them system-wide is necessary for running such builds.
+# See https://github.com/servo/servo/pull/25661
+$pfx = "REPLACE THIS WITH BASE64 PFX CODESIGN CERTIFICATE"
+[IO.File]::WriteAllBytes("C:\servo.pfx", [System.Convert]::FromBase64String($pfx))
+Import-PfxCertificate -FilePath C:\servo.pfx -CertStoreLocation Cert:\LocalMachine\Root
+Remove-Item C:\servo.pfx
 
 # Now shutdown, in preparation for creating an image
 shutdown -s

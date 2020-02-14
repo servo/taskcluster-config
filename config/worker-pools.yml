@@ -3,7 +3,7 @@ win2016:
     min_capacity: 1
     max_capacity: 10
     regions:
-        us-west-2: ami-09fcb40b5d2426c46
+        us-west-2: ami-074271ed2c7cdb45f
     capacity_per_instance_type:
         c5.2xlarge: 1
 

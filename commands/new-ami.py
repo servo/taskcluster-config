@@ -71,6 +71,15 @@ def new_ami(tmp, tc_options):
     # rather than at the end of the lengthy bootstrap process.
     set_secret("dummy", {})
 
+    ps1 = os.path.join(os.path.dirname(__file__), "..", "config", "windows-first-boot.ps1")
+    with open(ps1) as f:
+        user_data = "<powershell>\n%s\n</powershell>" % f.read()
+
+    cert = secrets.get("project/servo/windows-codesign-cert/latest")["secret"]
+    pfx = cert["pfx"]["base64"]
+    user_data = user_data.replace("REPLACE THIS WITH BASE64 PFX CODESIGN CERTIFICATE", pfx)
+    log("Using code signning certificate created on", cert["created"])
+
     result = ec2(
         "describe-images", "--owners", "amazon",
         "--filters", "Name=platform,Values=windows", "Name=name,Values=" + BASE_AMI_PATTERN,
@@ -86,9 +95,6 @@ def new_ami(tmp, tc_options):
     with open(key_filename, "w") as f:
         f.write(result["KeyMaterial"])
 
-    ps1 = os.path.join(os.path.dirname(__file__), "..", "config", "windows-first-boot.ps1")
-    with open(ps1) as f:
-        user_data = "<powershell>\n%s\n</powershell>" % f.read()
     result = ec2(
         "run-instances", "--image-id", base_ami["ImageId"],
         "--key-name", key_name,
