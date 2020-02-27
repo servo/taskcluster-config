@@ -25,6 +25,7 @@
     - project:servo:docker-worker-kvm:capability:privileged
     - docker-worker:cache:*
     - generic-worker:cache:*
+    - secrets:get:project/servo/windows-codesign-cert/latest
 
 
 - roleId: repo:github.com/servo/servo:branch:*
