@@ -85,6 +85,9 @@ Start-Process C:\vs_buildtools.exe -ArgumentList (`
         "--add Microsoft.VisualStudio.Component.VC.MFC.ARM64"
     ) -Wait
 
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowAllTrustedApps" /d "1"
+
 # Install the root certificate used for signing our UWP builds.
 # Having them system-wide is necessary for running such builds.
 # See https://github.com/servo/servo/pull/25661
