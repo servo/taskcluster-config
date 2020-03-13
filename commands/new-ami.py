@@ -44,7 +44,7 @@ import tc
 # `Windows_Server-2016-English-Full-Base-2018.09.15` or other dates.
 #
 # Let’s pick the most recent of those.
-BASE_AMI_PATTERN = "Windows_Server-2016-English-Full-Base-*"
+BASE_AMI_PATTERN = "Windows_Server-2019-English-Full-Base-*"
 
 REGION = "us-west-2"
 
