@@ -82,7 +82,10 @@ Start-Process C:\vs_buildtools.exe -ArgumentList (`
         "--add Microsoft.VisualStudio.Component.VC.ATL " +
         "--add Microsoft.VisualStudio.Component.VC.ATL.ARM64 " +
         "--add Microsoft.VisualStudio.Component.VC.ATLMFC " +
-        "--add Microsoft.VisualStudio.Component.VC.MFC.ARM64"
+        "--add Microsoft.VisualStudio.Component.VC.MFC.ARM64 " +
+        "--add Microsoft.VisualStudio.Component.Windows10SDK.18362 " +
+        "--add Microsoft.VisualStudio.Component.Windows10SDK.17763 " +
+        "--add Microsoft.VisualStudio.Component.Windows10SDK.17134"
     ) -Wait
 
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
