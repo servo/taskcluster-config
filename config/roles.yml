@@ -25,6 +25,7 @@
     - project:servo:docker-worker-kvm:capability:privileged
     - docker-worker:cache:*
     - generic-worker:cache:*
+    - generic-worker:allow-rdp:proj-servo/*
     - secrets:get:project/servo/windows-codesign-cert/latest
 
 
