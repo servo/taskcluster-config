@@ -270,3 +270,26 @@ Any task currently running on those workers will fail.
 ```
 ./mach kill-workers win2016-staging
 ```
+
+
+## `./mach rdp`: run a Remote Desktop client for a Windows task
+
+When we enable RDP access for a Windows task,
+generic-worker uploads RDP credentials to a private artifact
+and keeps the task’s worker and environment around for 12 hours.
+This script fetches said credentials and starts an RDP client,
+to reduce copy-pasting.
+
+The first argument is the task’s URL or ID.
+Other arguments are passed to the RDP client.
+For example, with `xfreerdp` installed:
+
+```
+./mach rdp https://community-tc.services.mozilla.com/tasks/Mae4_7n4RpyBq80qAjU5EA
+```
+
+Or:
+
+```
+./mach rdp Mae4_7n4RpyBq80qAjU5EA /w:1920 /h:2031 /scale-desktop:200 +fonts
+```
