@@ -73,11 +73,16 @@ Expand-ZIPFile -File "C:\depends22_x86.zip" -Destination "C:\" `
 
 # Visual C++ Build Tools
 # https://blogs.msdn.microsoft.com/vcblog/2016/11/16/introducing-the-visual-studio-build-tools/
-$client.DownloadFile("https://aka.ms/vs/15/release/vs_buildtools.exe", "C:\vs_buildtools.exe")
+$client.DownloadFile("https://aka.ms/vs/16/release/vs_buildtools.exe", "C:\vs_buildtools.exe")
 Start-Process C:\vs_buildtools.exe -ArgumentList (`
         "--passive --norestart --includeRecommended " +
         "--add Microsoft.VisualStudio.Workload.VCTools " +
         "--add Microsoft.VisualStudio.Workload.UniversalBuildTools " +
+        "--add Microsoft.VisualStudio.Workload.MSBuildTools " +
+        "--add Microsoft.VisualStudio.ComponentGroup.UWP.BuildTools " +
+        "--add Microsoft.VisualStudio.ComponentGroup.UWP.VC.BuildTools " +
+        "--add Microsoft.VisualStudio.Component.NuGet.BuildTools " +
+        "--add Microsoft.VisualStudio.Component.VC.CLI.Support " +
         "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64 " +
         "--add Microsoft.VisualStudio.Component.VC.ATL " +
         "--add Microsoft.VisualStudio.Component.VC.ATL.ARM64 " +
