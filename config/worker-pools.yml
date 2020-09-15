@@ -1,6 +1,6 @@
 win2016:
     kind: aws_windows
-    min_capacity: 1
+    min_capacity: 0
     max_capacity: 10
     regions:
         us-west-2: ami-0442a7cbbd9da12c6
