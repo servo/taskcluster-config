@@ -3,7 +3,7 @@ win2016:
     min_capacity: 0
     max_capacity: 10
     regions:
-        us-west-2: ami-0442a7cbbd9da12c6
+        us-west-2: ami-03eeef884edd4ab67 # copy of mozilla account’s ami-0442a7cbbd9da12c6
     capacity_per_instance_type:
         c5.2xlarge: 1
 
